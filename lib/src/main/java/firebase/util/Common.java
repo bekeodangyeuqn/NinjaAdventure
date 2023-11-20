@@ -15,7 +15,8 @@ public class Common {
     public static void initFirebase() {
         FileInputStream refreshToken = null;
         try {
-            refreshToken = new FileInputStream("C:\\Users\\admin\\eclipse-workspace\\NinjaAdventure\\credentials.json");
+        	
+            refreshToken = new FileInputStream("C:\\OOP-Thinghiem\\NinjaAdventure\\credentials.json");
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(refreshToken))
                     .setDatabaseUrl("https://ninja-adventure-528d8-default-rtdb.asia-southeast1.firebasedatabase.app/")

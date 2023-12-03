@@ -15,6 +15,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
@@ -30,6 +31,8 @@ import com.google.firebase.database.DatabaseReference.CompletionListener;
 import firebase.model.User;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class Login extends JFrame {
 
@@ -65,13 +68,14 @@ public class Login extends JFrame {
 	 */
 	public Login() {
 		initComponents();
+		clear();
 	}
 	
 	private void initComponents() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setMaximumSize(new java.awt.Dimension(1366, 768));
-        setMinimumSize(new java.awt.Dimension(1366, 768));
-        setPreferredSize(new java.awt.Dimension(1366, 768));
+        setMaximumSize(new java.awt.Dimension(1560, 1080));
+        setMinimumSize(new java.awt.Dimension(1560, 1080));
+        setPreferredSize(new java.awt.Dimension(1560, 1080));
 
         // Create a custom JPanel to draw the background image
         JPanel backgroundPanel = new JPanel() {
@@ -107,11 +111,23 @@ public class Login extends JFrame {
 		contentPane.add(lb_pass);
 		
 		txt_username = new JTextField();
+		txt_username.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				valid();
+			}
+		});
 		txt_username.setBounds(643, 211, 381, 36);
 		txt_username.setColumns(10);
 		contentPane.add(txt_username);
 		
 		txt_password = new JTextField();
+		txt_password.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				valid();
+			}
+		});
 		txt_password.setBounds(643, 279, 381, 36);
 		txt_password.setColumns(10);
 		contentPane.add(txt_password);
@@ -162,7 +178,6 @@ public class Login extends JFrame {
 	}
 	
 	private void checkUser(String username, String pass) {
-	    System.out.println("Tên người dùng: " + username + " Mật khẩu: " + pass + "\n");
 	    mDatabase = FirebaseDatabase.getInstance().getReference().child("Users");
 	    Query checkUserDatabase = mDatabase.orderByChild("username").equalTo(username);
 	    checkUserDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -175,15 +190,25 @@ public class Login extends JFrame {
 	                    // Lặp qua mỗi người dùng phù hợp với tên người dùng
 	                    String passwordFromDB = userSnapshot.child("password").getValue(String.class);
 	                    if (passwordFromDB != null && passwordFromDB.equals(pass)) {
-	                        System.out.println("Đăng nhập thành công\n");
+	                      
 	                        String fullnameFromDB = userSnapshot.child("fullname").getValue(String.class);
 	                        String emailFromDB = userSnapshot.child("email").getValue(String.class);
 	                        String usernameFromDB = userSnapshot.child("username").getValue(String.class);
-	                        System.out.println("Dữ liệu của người dùng là: " + fullnameFromDB + " " + emailFromDB + " " + usernameFromDB + "\n");
+	                        System.out.println("Dang nhap thanh cong");
+	                        setVisible(false);
+	                        new SetupGameMode().setVisible(true);
+	                      
+	                      
 	                    } else {
-	                        System.out.println("Mật khẩu không đúng, vui lòng nhập lại\n");
+	                        JOptionPane.showMessageDialog(null, "<html><b style=\"color:red\"> Incorrect password  </b>  </html>", "Message", JOptionPane.ERROR_MESSAGE);
+	                        clear();
+	                        System.out.println("Dang nhap that bai");
 	                    }
 	                }
+	            }else {
+	            	 JOptionPane.showMessageDialog(null, "<html><b style=\"color:red\"> Incorrect email   </b>  </html>", "Message", JOptionPane.ERROR_MESSAGE);
+	            	 clear();
+	            	 System.out.println("Dang nhap that bai");
 	            }
 
 	        }
@@ -194,6 +219,20 @@ public class Login extends JFrame {
 	        }
 	    });
 	}
-
+public void clear() {
+	txt_username.setText("");
+	txt_password.setText("");
+	btn.setEnabled(false);
+	
+}
+public void valid() {
+	String username = txt_username.getText();
+	String pass = txt_password.getText();
+	if(!username.isEmpty()&& !pass.isEmpty()) {
+		btn.setEnabled(true);
+	}else {
+		btn.setEnabled(false);
+	}
+}
 
 }

@@ -34,6 +34,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.SwingConstants;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 public class Signup extends JFrame {
 	 private DatabaseReference mDatabase;
 	private JPanel contentPane;
@@ -69,118 +71,16 @@ public class Signup extends JFrame {
 	 */
 	public Signup() {
 		     initComponents();
+		     clear();
 		    
 	}
-/*	private void initComponents() {
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setMaximumSize(new java.awt.Dimension(1366, 768));
-        setMinimumSize(new java.awt.Dimension(1366, 768));
-        setPreferredSize(new java.awt.Dimension(1366, 768));
-       
-		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 
-		setContentPane(contentPane);
-		contentPane.setLayout(null);
-		
-		
-		lb_signup.setForeground(Color.BLUE);
-		lb_signup.setBackground(Color.RED);
-		lb_signup.setFont(new Font("Tahoma", Font.BOLD, 30));
-		lb_signup.setBounds(404, 91, 143, 77);
-		contentPane.add(lb_signup);
-		
-		
-		lb_fullname.setFont(new Font("Tahoma", Font.BOLD, 18));
-		lb_fullname.setBounds(129, 181, 96, 27);
-		contentPane.add(lb_fullname);
-		
-		
-		lb_email.setFont(new Font("Tahoma", Font.BOLD, 18));
-		lb_email.setBounds(129, 230, 96, 27);
-		contentPane.add(lb_email);
-		
-		
-		lb_username.setFont(new Font("Tahoma", Font.BOLD, 18));
-		lb_username.setBounds(129, 282, 96, 27);
-		contentPane.add(lb_username);
-		
-	
-		lb_pass.setFont(new Font("Tahoma", Font.BOLD, 18));
-		lb_pass.setBounds(129, 336, 96, 27);
-		contentPane.add(lb_pass);
-		
-		txt_fullname = new JTextField();
-		txt_fullname.setBounds(262, 188, 381, 19);
-		contentPane.add(txt_fullname);
-		txt_fullname.setColumns(10);
-		
-		txt_email = new JTextField();
-		txt_email.setColumns(10);
-		txt_email.setBounds(262, 237, 381, 19);
-		contentPane.add(txt_email);
-		
-		txt_username = new JTextField();
-		txt_username.setColumns(10);
-		txt_username.setBounds(262, 289, 381, 19);
-		contentPane.add(txt_username);
-		
-		txt_password = new JTextField();
-		txt_password.setColumns(10);
-		txt_password.setBounds(262, 343, 381, 19);
-		contentPane.add(txt_password);
-		btn.setForeground(Color.BLUE);
-		
-		
-		
-		btn.setFont(new Font("Times New Roman", Font.BOLD, 20));
-		btn.setBounds(404, 433, 128, 59);
-		contentPane.add(btn);
-		btn.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				btnHandle(txt_fullname.getText(), txt_email.getText(), txt_username.getText(), txt_password.getText());
-				
-			}
-		});
-		
-		
-        lblNewLabel.addMouseListener(new MouseAdapter() {
-        	@Override
-        	public void mouseClicked(MouseEvent e) {
-        		setVisible(false);
-        		new Login().setVisible(true);
-        	}
-        });
-        lblNewLabel.setForeground(Color.RED);
-        lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 24));
-        lblNewLabel.setBounds(266, 502, 396, 59);
-        
-        contentPane.add(lblNewLabel);
-        //background
-        JLabel backgroundLabel = new JLabel();
-        backgroundLabel.setBounds(0, 0, 1366, 768);// Set the size to match your frame
-        contentPane.add(backgroundLabel);
-
-        // Set the background image
-        ImageIcon backgroundImage = new ImageIcon("C:\\OOP-Thinghiem\\NinjaAdventure\\lib\\src\\main\\java\\firebase\\images\\login_background.jpg");
-        backgroundLabel.setIcon(backgroundImage);
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int x = (screenSize.width - getWidth()) / 2;
-        int y = (screenSize.height - getHeight()) / 2;
-        setLocation(x, y);
-        
-        
-        
-	}*/
-	
 	
 	private void initComponents() {
 		  setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	        setMaximumSize(new java.awt.Dimension(1366, 768));
-	        setMinimumSize(new java.awt.Dimension(1366, 768));
-	        setPreferredSize(new java.awt.Dimension(1366, 768));
+	        setMaximumSize(new java.awt.Dimension(1560, 1080));
+	        setMinimumSize(new java.awt.Dimension(1560, 1080));
+	        setPreferredSize(new java.awt.Dimension(1560, 1080));
 
 	        // Create a custom JPanel to draw the background image
 	        JPanel backgroundPanel = new JPanel() {
@@ -220,18 +120,42 @@ public class Signup extends JFrame {
 	    lb_pass.setFont(new Font("Tahoma", Font.BOLD, 18));
 	    lb_pass.setBounds(392, 350, 96, 27); // Adjusted bounds
 	    contentPane.add(lb_pass);
+	    txt_fullname.addKeyListener(new KeyAdapter() {
+	    	@Override
+	    	public void keyReleased(KeyEvent e) {
+	    		valid();
+	    	}
+	    });
 
 	    txt_fullname.setBounds(541, 207, 381, 19); // Adjusted bounds
 	    contentPane.add(txt_fullname);
 	    txt_fullname.setColumns(10);
+	    txt_email.addKeyListener(new KeyAdapter() {
+	    	@Override
+	    	public void keyReleased(KeyEvent e) {
+	    		valid();
+	    	}
+	    });
 
 	    txt_email.setColumns(10);
 	    txt_email.setBounds(541, 257, 381, 19); // Adjusted bounds
 	    contentPane.add(txt_email);
+	    txt_username.addKeyListener(new KeyAdapter() {
+	    	@Override
+	    	public void keyReleased(KeyEvent e) {
+	    		valid();
+	    	}
+	    });
 
 	    txt_username.setColumns(10);
 	    txt_username.setBounds(541, 307, 381, 19); // Adjusted bounds
 	    contentPane.add(txt_username);
+	    txt_password.addKeyListener(new KeyAdapter() {
+	    	@Override
+	    	public void keyReleased(KeyEvent e) {
+	    		valid();
+	    	}
+	    });
 
 	    txt_password.setColumns(10);
 	    txt_password.setBounds(541, 357, 381, 19); // Adjusted bounds
@@ -278,11 +202,29 @@ public class Signup extends JFrame {
 			
 			@Override
 			public void onComplete(DatabaseError error, DatabaseReference ref) {
-				System.out.println("Dang ki tai khoan thanh cong\n");
+				 JOptionPane.showMessageDialog(null, "Login success,login now");
 				
 			}
 		});
-	}	
+	}
+	public void clear() {
+		txt_username.setText("");
+		txt_email.setText("");
+		txt_fullname.setText("");
+		txt_password.setText("");
+		btn.setEnabled(false);
+	}
+	public void valid() {
+		String username = txt_username.getText();
+		String email = txt_email.getText();
+		String fullname = txt_fullname.getText();
+		String password = txt_password.getText();
+		if(!username.isEmpty() && !email.isEmpty() && !fullname.isEmpty() && !password.isEmpty()) {
+			btn.setEnabled(true);
+		}else {
+			btn.setEnabled(false);
+		}
+	}
 }
 	
 	

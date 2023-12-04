@@ -3,6 +3,8 @@ package firebase.util;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
+
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -14,9 +16,14 @@ public class Common {
 
     public static void initFirebase() {
         FileInputStream refreshToken = null;
+        String basePath = new File("").getAbsolutePath();
+        System.out.println(basePath);
+
+        String path = new File("credentials.json").getAbsolutePath();
+        System.out.println(path);
         try {
         	
-            refreshToken = new FileInputStream("C:\\OOP-Thinghiem\\NinjaAdventure\\credentials.json");
+            refreshToken = new FileInputStream(path);
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(refreshToken))
                     .setDatabaseUrl("https://ninja-adventure-528d8-default-rtdb.asia-southeast1.firebasedatabase.app/")

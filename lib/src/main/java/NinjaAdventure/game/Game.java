@@ -1,11 +1,13 @@
 package NinjaAdventure.game;
 
+import java.awt.Canvas;
+
 import javax.swing.JOptionPane;
 
 import NinjaAdventure.socket.GameClient;
 import NinjaAdventure.socket.GameServer;
 
-public class Game implements Runnable{
+public class Game extends Canvas implements Runnable{
 	private GameClient socketClient;
 	private GameServer socketServer;
 	

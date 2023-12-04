@@ -16,6 +16,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
@@ -31,6 +32,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.database.DatabaseReference.CompletionListener;
 
 import firebase.model.User;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class ForgotPassWord extends JFrame {
 
@@ -49,14 +52,15 @@ public class ForgotPassWord extends JFrame {
 	
 	public ForgotPassWord() {
 		initComponents();
+		clear();
 		  mDatabase = FirebaseDatabase.getInstance().getReference().child("Users");
 	        FirebaseAuth mAuth = FirebaseAuth.getInstance();
 	}
 	private void initComponents() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setMaximumSize(new java.awt.Dimension(1366, 768));
-        setMinimumSize(new java.awt.Dimension(1366, 768));
-        setPreferredSize(new java.awt.Dimension(1366, 768));
+        setMaximumSize(new java.awt.Dimension(1560, 1080));
+        setMinimumSize(new java.awt.Dimension(1560, 1080));
+        setPreferredSize(new java.awt.Dimension(1560, 1080));
 
         // Create a custom JPanel to draw the background image
         JPanel backgroundPanel = new JPanel() {
@@ -97,16 +101,34 @@ public class ForgotPassWord extends JFrame {
 		contentPane.add(lb_pass);
 		
 		txt_email = new JTextField();
+		txt_email.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				valid();
+			}
+		});
 		txt_email.setColumns(10);
 		txt_email.setBounds(558, 237, 381, 19);
 		contentPane.add(txt_email);
 		
 		txt_username = new JTextField();
+		txt_username.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				valid();
+			}
+		});
 		txt_username.setColumns(10);
 		txt_username.setBounds(558, 289, 381, 19);
 		contentPane.add(txt_username);
 		
 		txt_password = new JTextField();
+		txt_password.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				valid();
+			}
+		});
 		txt_password.setColumns(10);
 		txt_password.setBounds(558, 343, 381, 19);
 		contentPane.add(txt_password);
@@ -151,22 +173,25 @@ public class ForgotPassWord extends JFrame {
                         if (user.getUsername().equals(username)) {
                             // Username cũng tồn tại, thực hiện cập nhật mật khẩu
                            updateUser(mDatabase, user.getUserId(), newPassword);
-                            System.out.println("Mật khẩu đã được cập nhật thành công. Đăng nhập với mật khẩu mới.");
+                          
                         } else {
                             // Hiển thị thông báo lỗi nếu username không khớp
-                            System.out.println("Username không khớp. Vui lòng nhập lại.");
+                        	 JOptionPane.showMessageDialog(null, "<html><b style=\"color:red\"> Incorrect username  </b>  </html>", "Message", JOptionPane.ERROR_MESSAGE);
+                        	 clear();
                         }
                     }
                 } else {
                     // Hiển thị thông báo lỗi nếu email không tồn tại
-                    System.out.println("Email không tồn tại. Vui lòng nhập lại.");
+                	 JOptionPane.showMessageDialog(null, "<html><b style=\"color:red\"> Incorrect email  </b>  </html>", "Message", JOptionPane.ERROR_MESSAGE);
+                	 clear();
                 }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError ){
                 // Xử lý lỗi khi đọc dữ liệu từ Firebase
-                System.out.println("Lỗi đọc dữ liệu từ Firebase: " + databaseError.getMessage());
+            	 JOptionPane.showMessageDialog(null, "<html><b style=\"color:red\"> CONNECT DATABASE ERROR  </b>  </html>", "Message", JOptionPane.ERROR_MESSAGE);
+            	 clear();
             }
         });
     }
@@ -179,10 +204,26 @@ public class ForgotPassWord extends JFrame {
 			
 			@Override
 			public void onComplete(DatabaseError error, DatabaseReference ref) {
-					System.out.println("Doi mat khau thanh cong hay dang nhap lai");
+				 JOptionPane.showMessageDialog(null, "Change pass successfull,login now");
 				
 			}
 		});
+	}
+	public void clear() {
+		txt_username.setText("");
+		txt_email.setText("");
+		txt_password.setText("");
+		btn.setEnabled(false);
+	}
+	public void valid() {
+		String username = txt_username.getText();
+		String email = txt_email.getText();
+		String password = txt_password.getText();
+		if(!username.isEmpty() && !email.isEmpty()  && !password.isEmpty()) {
+			btn.setEnabled(true);
+		}else {
+			btn.setEnabled(false);
+		}
 	}
 
 

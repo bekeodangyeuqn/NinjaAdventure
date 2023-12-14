@@ -9,6 +9,10 @@ import javax.swing.border.EmptyBorder;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.DatabaseReference.CompletionListener;
+
+import NinjaAdventure.socket.MultiScreenClient;
+import NinjaAdventure.socket.ServerMessage;
+
 import com.google.firebase.database.FirebaseDatabase;
 
 import firebase.model.User;
@@ -33,6 +37,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+
 import javax.swing.SwingConstants;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -53,30 +59,30 @@ public class Signup extends JFrame {
 	/**
 	 * Launch the application.
 	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					Signup frame = new Signup();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+//	public static void main(String[] args) {
+//		EventQueue.invokeLater(new Runnable() {
+//			public void run() {
+//				try {
+//					Signup frame = new Signup();
+//					frame.setVisible(true);
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		});
+//	}
 
 	/**
 	 * Create the frame.
 	 */
-	public Signup() {
-		     initComponents();
+	public Signup(MultiScreenClient client) {
+		     initComponents(client);
 		     clear();
 		    
 	}
 
 	
-	private void initComponents() {
+	private void initComponents(MultiScreenClient client) {
 		  setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	        setMaximumSize(new java.awt.Dimension(1560, 1080));
 	        setMinimumSize(new java.awt.Dimension(1560, 1080));
@@ -87,7 +93,8 @@ public class Signup extends JFrame {
 	            @Override
 	            protected void paintComponent(Graphics g) {
 	                super.paintComponent(g);
-	                Image backgroundImage = new ImageIcon("C:\\OOP-Thinghiem\\NinjaAdventure\\lib\\src\\main\\java\\firebase\\images\\login_background.jpg").getImage();
+	                String path = new File("src\\main\\java\\firebase\\images\\login_background.jpg").getAbsolutePath();
+	                Image backgroundImage = new ImageIcon(path).getImage();
 	                g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
 	            }
 	        };
@@ -169,7 +176,8 @@ public class Signup extends JFrame {
 
 	        @Override
 	        public void actionPerformed(ActionEvent e) {
-	            btnHandle(txt_fullname.getText(), txt_email.getText(), txt_username.getText(), txt_password.getText());
+	            // btnHandle(txt_fullname.getText(), txt_email.getText(), txt_username.getText(), txt_password.getText());
+	        	client.signup(txt_username.getText(), txt_password.getText(), txt_email.getText(), txt_fullname.getText());
 
 	        }
 	    });
@@ -178,7 +186,7 @@ public class Signup extends JFrame {
 	        @Override
 	        public void mouseClicked(MouseEvent e) {
 	            setVisible(false);
-	            new Login().setVisible(true);
+	            new Login(client).setVisible(true);
 	        }
 	    });
 	    lblNewLabel.setForeground(Color.RED);
@@ -189,23 +197,16 @@ public class Signup extends JFrame {
 	   
 	}
 
-	private void btnHandle(String fullname,String email,String username,String password) {
-		mDatabase = FirebaseDatabase.getInstance().getReference().child("Users");
-		String id = generateUUID();
-		User user = new User();
-		user.setEmail(email);
-		user.setUsername(username);
-		user.setUserId(id);
-		user.setFullname(fullname);
-		user.setPassword(password);
-		mDatabase.child(id).setValue(user, new CompletionListener() {
-			
-			@Override
-			public void onComplete(DatabaseError error, DatabaseReference ref) {
-				 JOptionPane.showMessageDialog(null, "Login success,login now");
-				
-			}
-		});
+	public void onCompleteSignUp(ServerMessage serverMessage, MultiScreenClient client) {
+		if (serverMessage.getStatus() == ServerMessage.STATUS.SUCCESS ) {
+			System.out.println(serverMessage.getPayload());
+            dispose();
+            new Login(client).setVisible(true);
+		} else {
+			JOptionPane.showMessageDialog(null, "<html><b style=\"color:red\">" + serverMessage.getPayload()  + "</b>  </html>", "Message", JOptionPane.ERROR_MESSAGE);
+            clear();
+            System.out.println("Dang ky that bai");
+		}
 	}
 	public void clear() {
 		txt_username.setText("");
@@ -226,25 +227,3 @@ public class Signup extends JFrame {
 		}
 	}
 }
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-

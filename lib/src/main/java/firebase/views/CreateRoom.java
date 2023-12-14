@@ -18,7 +18,12 @@ import javax.swing.JTextField;
 import javax.swing.JSpinner;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+
 import javax.swing.event.ChangeListener;
+
+import NinjaAdventure.socket.MultiScreenClient;
+
 import javax.swing.event.ChangeEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -46,12 +51,12 @@ public class CreateRoom extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public CreateRoom(RoomList roomList) {
+	public CreateRoom(RoomList roomList, MultiScreenClient client) {
 		this.roomList = roomList;
-		initComponent();
+		initComponent(client);
 		clear();
 	}
-	public void initComponent() {
+	public void initComponent(MultiScreenClient client) {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setMaximumSize(new java.awt.Dimension(1560, 1080));
         setMinimumSize(new java.awt.Dimension(1560, 1080));
@@ -62,7 +67,8 @@ public class CreateRoom extends JFrame {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                Image backgroundImage = new ImageIcon("C:\\OOP-Thinghiem\\NinjaAdventure\\lib\\src\\main\\java\\firebase\\images\\login_background.jpg").getImage();
+                String path = new File("src\\main\\java\\firebase\\images\\login_background.jpg").getAbsolutePath();
+                Image backgroundImage = new ImageIcon(path).getImage();
                 g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
             }
         };
@@ -90,7 +96,7 @@ public class CreateRoom extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				setVisible(false);
-				Multiplayer_Mode mp1 = new Multiplayer_Mode();
+				Multiplayer_Mode mp1 = new Multiplayer_Mode(client);
 				mp1.setRoomList(roomList);
 				mp1.setVisible(true);
 			}
@@ -152,7 +158,8 @@ public class CreateRoom extends JFrame {
 		btn_create.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				setVisible(false);
-				createNewRoom();
+				// createNewRoom(textField_roomname.getText(), (int) spinner.getValue(), textField_pass.getText());
+				client.createRoom(textField_roomname.getText(), textField_pass.getText(), (int) spinner.getValue());
 			}
 		});
 	}
@@ -173,10 +180,7 @@ public class CreateRoom extends JFrame {
 			btn_create.setEnabled(false);
 		}
 	}
-	private void createNewRoom() {
-        String roomName = textField_roomname.getText();
-        int numOfPlayers = (int) spinner.getValue();
-        String password = textField_pass.getText();
+	public void createNewRoom(String username, String roomName, int numOfPlayers, String password) {
 
         // Validate input (bạn có thể thêm kiểm tra hợp lệ khác nếu cần)
         if (roomName.isEmpty()) {
@@ -186,7 +190,7 @@ public class CreateRoom extends JFrame {
 
         // Thông báo cho lớp nghe biết rằng có phòng mới được tạo
         if (roomList != null) {
-            roomList.onRoomCreated(roomName, numOfPlayers, password);
+            roomList.onRoomCreated(username, roomName, numOfPlayers, password);
         }
 
         // Đóng cửa sổ tạo phòng sau khi tạo xong

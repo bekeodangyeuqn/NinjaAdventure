@@ -14,8 +14,29 @@ gradle-app.setting
 # Cache of project
 .gradletasknamecache
 
-# Eclipse Gradle plugin generated files
-# Eclipse Core
+*target*
+*.jar
+*.war
+*.ear
+*.class
+
+# eclipse specific git ignore
+*.pydevproject
 .project
-# JDT-specific (Eclipse Java Development Tools)
-.classpath
+.metadata
+lib/bin/**
+tmp/**
+tmp/**/*
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.settings/
+.loadpath
+
+# External tool builders
+.externalToolBuilders/
+
+# Locally stored "Eclipse launch configurations"
+*.launch

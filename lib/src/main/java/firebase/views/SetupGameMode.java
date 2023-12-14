@@ -9,6 +9,9 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+
+import NinjaAdventure.socket.MultiScreenClient;
+
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import java.awt.Font;
@@ -16,6 +19,7 @@ import java.awt.Graphics;
 import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 
 public class SetupGameMode extends JFrame {
 
@@ -23,24 +27,24 @@ public class SetupGameMode extends JFrame {
 	/**
 	 * Launch the application.
 	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					SetupGameMode frame = new SetupGameMode();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+//	public static void main(String[] args) {
+//		EventQueue.invokeLater(new Runnable() {
+//			public void run() {
+//				try {
+//					SetupGameMode frame = new SetupGameMode();
+//					frame.setVisible(true);
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		});
+//	}
 
 	/**
 	 * Create the frame.
 	 */
 	
-	public SetupGameMode() {	
+	public SetupGameMode(MultiScreenClient client) {	
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setMaximumSize(new java.awt.Dimension(1560, 1080));
         setMinimumSize(new java.awt.Dimension(1560, 1080));
@@ -51,7 +55,8 @@ public class SetupGameMode extends JFrame {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                Image backgroundImage = new ImageIcon("C:\\OOP-Thinghiem\\NinjaAdventure\\lib\\src\\main\\java\\firebase\\images\\login_background.jpg").getImage();
+                String path = new File("src\\main\\java\\firebase\\images\\login_background.jpg").getAbsolutePath();
+                Image backgroundImage = new ImageIcon(path).getImage();
                 g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
             }
         };
@@ -61,6 +66,14 @@ public class SetupGameMode extends JFrame {
         contentPane.setLayout(null);
 		setContentPane(contentPane);
 		
+		System.out.println("Screen username: " + client.getUsername());
+		JLabel lb_name = new JLabel("User: " + client.getUsername());
+		lb_name.setBackground(new Color(0, 0, 160));
+		lb_name.setForeground(new Color(0, 0, 255));
+		lb_name.setFont(new Font("Tahoma", Font.BOLD, 40));
+		lb_name.setBounds(689, 200, 598, 80);
+		contentPane.add(lb_name);
+		
 		JLabel lb_solo = new JLabel("SOLO (1 PLAYER)");
 		lb_solo.setBackground(new Color(0, 0, 160));
 		lb_solo.setForeground(new Color(0, 0, 255));
@@ -68,14 +81,13 @@ public class SetupGameMode extends JFrame {
 		lb_solo.setBounds(689, 341, 598, 80);
 		contentPane.add(lb_solo);
 		
-		
 		JLabel lb_multi = new JLabel("MULTIPLAYER");
 		lb_multi.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 					setVisible(false);
-					Multiplayer_Mode multiplayer_Mode = new Multiplayer_Mode();
-					multiplayer_Mode.setRoomList(new RoomList());
+					Multiplayer_Mode multiplayer_Mode = new Multiplayer_Mode(client);
+					multiplayer_Mode.setRoomList(new RoomList(client));
 					
 					multiplayer_Mode.setVisible(true);
 			}
@@ -91,18 +103,5 @@ public class SetupGameMode extends JFrame {
 		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		lblNewLabel.setBounds(579, 66, 719, 80);
 		backgroundPanel.add(lblNewLabel);
-		
-		JButton btnNewButton = new JButton("BACK");
-		btnNewButton.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				setVisible(false);
-				new Login().setVisible(true);
-			}
-		});
-		btnNewButton.setFont(new Font("Tahoma", Font.BOLD, 30));
-		btnNewButton.setForeground(Color.BLUE);
-		btnNewButton.setBounds(54, 66, 214, 65);
-		backgroundPanel.add(btnNewButton);
 	}
 }

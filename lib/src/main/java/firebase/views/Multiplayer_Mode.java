@@ -8,6 +8,8 @@ import javax.swing.border.EmptyBorder;
 
 import com.google.cloud.firestore.collection.LLRBNode.Color;
 
+import NinjaAdventure.socket.MultiScreenClient;
+
 import javax.swing.JLabel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -20,6 +22,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 
 public class Multiplayer_Mode extends JFrame {
 
@@ -29,25 +32,25 @@ public class Multiplayer_Mode extends JFrame {
 	/**
 	 * Launch the application.
 	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					Multiplayer_Mode frame = new Multiplayer_Mode();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+//	public static void main(String[] args) {
+//		EventQueue.invokeLater(new Runnable() {
+//			public void run() {
+//				try {
+//					Multiplayer_Mode frame = new Multiplayer_Mode();
+//					frame.setVisible(true);
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		});
+//	}
 
 	/**
 	 * Create the frame.
 	 */
-	public Multiplayer_Mode() {
+	public Multiplayer_Mode(MultiScreenClient client) {
 		
-		initComponent();
+		initComponent(client);
 	}
 	
 
@@ -56,7 +59,7 @@ public class Multiplayer_Mode extends JFrame {
 		this.roomList = roomList;
 	}
 
-	public void initComponent() {
+	public void initComponent(MultiScreenClient client) {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setMaximumSize(new java.awt.Dimension(1560, 1080));
         setMinimumSize(new java.awt.Dimension(1560, 1080));
@@ -67,7 +70,8 @@ public class Multiplayer_Mode extends JFrame {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                Image backgroundImage = new ImageIcon("C:\\OOP-Thinghiem\\NinjaAdventure\\lib\\src\\main\\java\\firebase\\images\\login_background.jpg").getImage();
+                String path = new File("src\\main\\java\\firebase\\images\\login_background.jpg").getAbsolutePath();
+                Image backgroundImage = new ImageIcon(path).getImage();
                 g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
             }
         };
@@ -88,7 +92,7 @@ public class Multiplayer_Mode extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				setVisible(false);
-				SetupGameMode setupGameMode = new SetupGameMode();
+				SetupGameMode setupGameMode = new SetupGameMode(client);
 			
 				setupGameMode.setVisible(true);
 			}
@@ -117,7 +121,7 @@ public class Multiplayer_Mode extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				setVisible(false);
-				new CreateRoom(roomList).setVisible(true);
+				new CreateRoom(roomList, client).setVisible(true);
 			}
 		});
 		btn_create_room.setBackground(new java.awt.Color(255, 0, 255));

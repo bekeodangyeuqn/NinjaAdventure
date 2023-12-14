@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,6 +30,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import NinjaAdventure.socket.MultiScreenClient;
+
 import com.google.firebase.database.DatabaseReference.CompletionListener;
 
 import firebase.model.User;
@@ -50,13 +54,13 @@ public class ForgotPassWord extends JFrame {
 		private final JLabel lblNewLabel = new JLabel("Login Again");
 
 	
-	public ForgotPassWord() {
-		initComponents();
+	public ForgotPassWord(MultiScreenClient client) {
+		initComponents(client);
 		clear();
-		  mDatabase = FirebaseDatabase.getInstance().getReference().child("Users");
-	        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+//		  mDatabase = FirebaseDatabase.getInstance().getReference().child("Users");
+//	        FirebaseAuth mAuth = FirebaseAuth.getInstance();
 	}
-	private void initComponents() {
+	private void initComponents(MultiScreenClient client) {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setMaximumSize(new java.awt.Dimension(1560, 1080));
         setMinimumSize(new java.awt.Dimension(1560, 1080));
@@ -67,7 +71,8 @@ public class ForgotPassWord extends JFrame {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                Image backgroundImage = new ImageIcon("C:\\OOP-Thinghiem\\NinjaAdventure\\lib\\src\\main\\java\\firebase\\images\\login_background.jpg").getImage();
+                String path = new File("src\\main\\java\\firebase\\images\\login_background.jpg").getAbsolutePath();
+                Image backgroundImage = new ImageIcon(path).getImage();
                 g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
             }
         };
@@ -152,7 +157,7 @@ public class ForgotPassWord extends JFrame {
         	@Override
         	public void mouseClicked(MouseEvent e) {
         		setVisible(false);
-        		new Login().setVisible(true);
+        		new Login(client).setVisible(true);
         	}
         });
         lblNewLabel.setForeground(Color.RED);

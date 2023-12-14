@@ -22,7 +22,7 @@ public class Common {
         String path = new File("credentials.json").getAbsolutePath();
         System.out.println(path);
         try {
-        	
+
             refreshToken = new FileInputStream(path);
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(refreshToken))

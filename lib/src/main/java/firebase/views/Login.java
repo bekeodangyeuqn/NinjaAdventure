@@ -3,6 +3,7 @@ package firebase.views;
 import static firebase.util.Common.generateUUID;
 import static firebase.util.Common.initFirebase;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Font;
@@ -13,10 +14,12 @@ import java.awt.event.ActionListener;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
@@ -26,16 +29,21 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+
+import NinjaAdventure.socket.MultiScreenClient;
+import NinjaAdventure.socket.ServerMessage;
+
 import com.google.firebase.database.DatabaseReference.CompletionListener;
 
 import firebase.model.User;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 public class Login extends JFrame {
-
+	 JFrame _this = this;
 	 private DatabaseReference mDatabase;
 		private JPanel contentPane;
 		private JTextField txt_username;
@@ -50,28 +58,17 @@ public class Login extends JFrame {
 	/**
 	 * Launch the application.
 	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					Login frame = new Login();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
 
 	/**
 	 * Create the frame.
 	 */
-	public Login() {
-		initComponents();
+	public Login(MultiScreenClient client) {
+		initComponents(client);
 		clear();
 	}
 	
-	private void initComponents() {
+	
+	private void initComponents(MultiScreenClient client) {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setMaximumSize(new java.awt.Dimension(1560, 1080));
         setMinimumSize(new java.awt.Dimension(1560, 1080));
@@ -82,7 +79,8 @@ public class Login extends JFrame {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                Image backgroundImage = new ImageIcon("C:\\OOP-Thinghiem\\NinjaAdventure\\lib\\src\\main\\java\\firebase\\images\\login_background.jpg").getImage();
+                String path = new File("src\\main\\java\\firebase\\images\\login_background.jpg").getAbsolutePath();
+                Image backgroundImage = new ImageIcon(path).getImage();
                 g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
             }
         };
@@ -145,8 +143,16 @@ public class Login extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				String username = txt_username.getText().toString().trim();
 				String pass = txt_password.getText().toString().trim();
-				checkUser(txt_username.getText(), txt_password.getText());
-				
+//				checkUser(txt_username.getText(), txt_password.getText(), client);
+//				JDialog loadingDialog = new JDialog(_this, "Loading", true);
+//		        loadingDialog.setSize(100, 100);
+//		        loadingDialog.setLocationRelativeTo(_this);
+
+//		        JProgressBar progressBar = new JProgressBar();
+//		        progressBar.setIndeterminate(true);
+//		        loadingDialog.add(BorderLayout.CENTER, progressBar);
+				client.login(username, pass);
+				//loadingDialog.dispose();
 			}
 		});
 		
@@ -155,7 +161,7 @@ public class Login extends JFrame {
         	@Override
         	public void mouseClicked(MouseEvent e) {
         		 	setVisible(false);
-        	        new Signup().setVisible(true);
+        	        new Signup(client).setVisible(true);
         	}
         });
         lb_redirect.setForeground(Color.RED);
@@ -167,7 +173,7 @@ public class Login extends JFrame {
         	@Override
         	public void mouseClicked(MouseEvent e) {
         		setVisible(false);
-        		new ForgotPassWord().setVisible(true);
+        		new ForgotPassWord(client).setVisible(true);
         	}
         });
         lb_redirect_1.setForeground(Color.RED);
@@ -177,62 +183,37 @@ public class Login extends JFrame {
         contentPane.add(lb_redirect_1);
 	}
 	
-	private void checkUser(String username, String pass) {
-	    mDatabase = FirebaseDatabase.getInstance().getReference().child("Users");
-	    Query checkUserDatabase = mDatabase.orderByChild("username").equalTo(username);
-	    checkUserDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
-
-	        @Override
-	        public void onDataChange(DataSnapshot snapshot) {
-
-	            if (snapshot.exists()) {
-	                for (DataSnapshot userSnapshot : snapshot.getChildren()) {
-	                    // Lặp qua mỗi người dùng phù hợp với tên người dùng
-	                    String passwordFromDB = userSnapshot.child("password").getValue(String.class);
-	                    if (passwordFromDB != null && passwordFromDB.equals(pass)) {
-	                      
-	                        String fullnameFromDB = userSnapshot.child("fullname").getValue(String.class);
-	                        String emailFromDB = userSnapshot.child("email").getValue(String.class);
-	                        String usernameFromDB = userSnapshot.child("username").getValue(String.class);
-	                        System.out.println("Dang nhap thanh cong");
-	                        setVisible(false);
-	                        new SetupGameMode().setVisible(true);
-	                      
-	                      
-	                    } else {
-	                        JOptionPane.showMessageDialog(null, "<html><b style=\"color:red\"> Incorrect password  </b>  </html>", "Message", JOptionPane.ERROR_MESSAGE);
-	                        clear();
-	                        System.out.println("Dang nhap that bai");
-	                    }
-	                }
-	            }else {
-	            	 JOptionPane.showMessageDialog(null, "<html><b style=\"color:red\"> Incorrect email   </b>  </html>", "Message", JOptionPane.ERROR_MESSAGE);
-	            	 clear();
-	            	 System.out.println("Dang nhap that bai");
-	            }
-
-	        }
-
-	        @Override
-	        public void onCancelled(DatabaseError error) {
-	            // Xử lý khi hủy bỏ
-	        }
-	    });
+	public void onCompleteLogin(ServerMessage serverMessage, MultiScreenClient client) {
+		if (serverMessage.getStatus() == ServerMessage.STATUS.SUCCESS ) {
+			System.out.println(serverMessage.getPayload());
+			clear();
+			client.setUsername(serverMessage.getPayload());
+			SetupGameMode setupGameModeScreen = new SetupGameMode(client);
+            setupGameModeScreen.setVisible(true);
+            dispose();
+		} else {
+			JOptionPane.showMessageDialog(null, "<html><b style=\"color:red\">" + serverMessage.getPayload()  + "</b>  </html>", "Message", JOptionPane.ERROR_MESSAGE);
+            clear();
+            System.out.println("Dang nhap that bai");
+            setVisible(false);
+            client.loginScreen.setVisible(true);
+		}
 	}
-public void clear() {
-	txt_username.setText("");
-	txt_password.setText("");
-	btn.setEnabled(false);
 	
-}
-public void valid() {
-	String username = txt_username.getText();
-	String pass = txt_password.getText();
-	if(!username.isEmpty()&& !pass.isEmpty()) {
-		btn.setEnabled(true);
-	}else {
+	public void clear() {
+		txt_username.setText("");
+		txt_password.setText("");
 		btn.setEnabled(false);
+		
 	}
-}
-
+	
+	public void valid() {
+		String username = txt_username.getText();
+		String pass = txt_password.getText();
+		if(!username.isEmpty()&& !pass.isEmpty()) {
+			btn.setEnabled(true);
+		}else {
+			btn.setEnabled(false);
+		}
+	}
 }

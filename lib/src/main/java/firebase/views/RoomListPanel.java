@@ -17,6 +17,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+import NinjaAdventure.socket.GameServer;
 import firebase.model.*;
 
 import java.awt.BorderLayout;
@@ -27,29 +28,30 @@ import javax.swing.Box;
 
 public class RoomListPanel extends JPanel {
 
-	 private List<Room> rooms;
-	    public RoomListPanel() {
+	private List<Room> rooms;
+	
+	public RoomListPanel() {
 	        this.rooms = new ArrayList<>();
 	        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 	        updateUI1();
 	    }
 
-	    public void addRoom(Room room) {
-	        rooms.add(room);
-	        updateUI1();
-	    }
+    public void addRoom(Room room) {
+        rooms.add(room);
+        updateUI1();
+    }
 	    
-	   public void updateUI1() {
-			removeAllComponents(); // Clear previous components
+	public void updateUI1() {
+		removeAllComponents(); // Clear previous components
 
-	        for (Room room : rooms) {
-	            add(createRoomPanel(room));
-	            add(Box.createRigidArea(new Dimension(0, 10))); // Add some space between rooms
-	        }
+        for (Room room : rooms) {
+            add(createRoomPanel(room));
+            add(Box.createRigidArea(new Dimension(0, 10))); // Add some space between rooms
+        }
 
-	        revalidate();
-	        repaint();
-	    }
+        revalidate();
+        repaint();
+    }
 
 	   private JPanel createRoomPanel(Room room) {
 		    JPanel panel = new JPanel();

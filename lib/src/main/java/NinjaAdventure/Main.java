@@ -1,6 +1,5 @@
-package firebase;
+package NinjaAdventure;
 
-import static firebase.util.Common.initFirebase;
 import static NinjaAdventure.socket.MultiScreenClient.initMultiScreen;
 import javax.swing.SwingUtilities;
 
@@ -15,9 +14,7 @@ public class Main {
 
 	public static void main(String[] args) {
 
-		initFirebase();
 		// new firebase.views.Login().setVisible(true);
 		initMultiScreen();
-
 	}
 }

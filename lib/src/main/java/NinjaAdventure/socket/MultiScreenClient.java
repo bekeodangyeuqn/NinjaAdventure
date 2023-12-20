@@ -104,7 +104,7 @@ public class MultiScreenClient {
     private void initialize() {
         loginScreen = new Login(this);
         signupScreen = new Signup(this);
-        // setupGameModeScreen = new SetupGameMode(this);
+        setupGameModeScreen = new SetupGameMode(this);
         forgotPasswordScreen = new ForgotPassWord(this);
         createRoomScreen = new CreateRoom(roomList, this);
         multiPlayerModeScreen = new Multiplayer_Mode(this);
@@ -128,7 +128,7 @@ public class MultiScreenClient {
             try {
             	MultiScreenClient client = new MultiScreenClient();
                 client.initialize();
-//                
+                client.listenServerMessage();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -158,9 +158,7 @@ public class MultiScreenClient {
             	break;
             case CREATE_ROOM:
                 // Handle create room message
-//            	System.out.println("Handling create room...");
-//            	createRoomScreen.createNewRoom(this.getUsername(), clientMessage.getRoomname(), clientMessage.getNumOfPlayers(), clientMessage.getPasswordRoom());
-//            	System.out.println("Create room sucessfully");
+            	createRoomScreen.createNewRoom(serverMessage, this);
                 break;
             case JOIN_ROOM:
                 // Handle join room message
@@ -179,89 +177,90 @@ public class MultiScreenClient {
             ClientMessage message = new ClientMessage(ClientMessage.MSG_TYPE.LOGIN, username, password);
             outputStream.writeObject(message);
 
-            new Thread(() -> {
-                try {
-                	ServerMessage serverMessage = (ServerMessage) inputStream.readObject();
-                    handleServerMessage(serverMessage);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }).start();
+//            new Thread(() -> {
+//                try {
+//                	ServerMessage serverMessage = (ServerMessage) inputStream.readObject();
+//                    handleServerMessage(serverMessage);
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }).start();
             System.out.println("Handle completed...");
 
             this.username = username;
             this.password = password;
               
             System.out.println("Username: " + this.username);
-//            setupGameModeScreen = new SetupGameMode(this);
-//            setupGameModeScreen.setVisible(true);
-//            loginScreen.dispose();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+	
+	public void listenServerMessage() {
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				ServerMessage serverMessage;
+				while (socket.isConnected()) {
+					try {
+						serverMessage = (ServerMessage) inputStream.readObject();
+						handleServerMessage(serverMessage);
+					} catch (ClassNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+			
+		}).start();
+	}
 	
 	public void signup(String username, String password, String email, String fullname) {
         
         try {
-//            socket = new Socket(SERVER_IP, SERVER_PORT);
-//            outputStream = new ObjectOutputStream(socket.getOutputStream());
-//            inputStream = new ObjectInputStream(socket.getInputStream());
-
             ClientMessage message = new ClientMessage(ClientMessage.MSG_TYPE.SIGNUP, username, password, fullname, email);
             outputStream.writeObject(message);
 
-            new Thread(() -> {
-                try {
-                	ServerMessage serverMessage = (ServerMessage) inputStream.readObject();
-                    handleServerMessage(serverMessage);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }).start();
-
-//            chatScreen.setTitle("Chat Screen - " + username);
-//            chatScreen.setVisible(true);
-            this.username = username;
-            this.password = password;
-            this.email = email;
-            this.fullname = fullname;
-//              setupGameModeScreen = new SetupGameMode(this);
-//              setupGameModeScreen.setVisible(true);
-//              signupScreen.dispose();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-	
-	public void createRoom(String roomname, String passwordRoom, int numOfPlayers) {
-        this.roomname = roomname;
-        this.passwordRoom = passwordRoom;
-        this.numOfPlayers = numOfPlayers;
-        try {
-//            socket = new Socket(SERVER_IP, SERVER_PORT);
-//            outputStream = new ObjectOutputStream(socket.getOutputStream());
-//            inputStream = new ObjectInputStream(socket.getInputStream());
-
-            ClientMessage joinMessage = new ClientMessage(ClientMessage.MSG_TYPE.CREATE_ROOM, roomname, passwordRoom, numOfPlayers);
-            outputStream.writeObject(joinMessage);
-
 //            new Thread(() -> {
 //                try {
-//                    while (true) {
-//                        ClientMessage clientMessage = (ClientMessage) inputStream.readObject();
-//                        handleServerMessage(clientMessage);
-//                    }
+//                	ServerMessage serverMessage = (ServerMessage) inputStream.readObject();
+//                    handleServerMessage(serverMessage);
 //                } catch (Exception e) {
 //                    e.printStackTrace();
 //                }
 //            }).start();
 
-//            chatScreen.setTitle("Chat Screen - " + username);
-//            chatScreen.setVisible(true);
-              setupGameModeScreen = new SetupGameMode(this);
-              setupGameModeScreen.setVisible(true);
-              signupScreen.dispose();
+            this.username = username;
+            this.password = password;
+            this.email = email;
+            this.fullname = fullname;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+	
+	public void createRoom(String username, String roomname, String passwordRoom, int numOfPlayers) {
+        this.roomname = roomname;
+        this.passwordRoom = passwordRoom;
+        this.numOfPlayers = numOfPlayers;
+        try {
+            ClientMessage joinMessage = new ClientMessage(ClientMessage.MSG_TYPE.CREATE_ROOM, username, roomname, passwordRoom, numOfPlayers);
+            outputStream.writeObject(joinMessage);
+
+//            new Thread(() -> {
+//                try {
+//                	ServerMessage serverMessage = (ServerMessage) inputStream.readObject();
+//                    handleServerMessage(serverMessage);
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }).start();
         } catch (Exception e) {
             e.printStackTrace();
         }

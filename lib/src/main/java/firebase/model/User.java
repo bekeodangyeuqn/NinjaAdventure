@@ -1,33 +1,41 @@
 package firebase.model;
 
-public class User {
+import java.io.Serializable;
+
+public class User implements Serializable{
 private String username,email,userId,fullname,password;
 
 
 	public String getFullname() {
 	return fullname;
-}
+	}
 
-public void setFullname(String fullname) {
-	this.fullname = fullname;
-}
-
-public String getPassword() {
-	return password;
-}
-
-public void setPassword(String password) {
-	this.password = password;
-}
+	public void setFullname(String fullname) {
+		this.fullname = fullname;
+	}
+	
+	public String getPassword() {
+		return password;
+	}
+	
+	public void setPassword(String password) {
+		this.password = password;
+	}
 
 	public User() {
-		// TODO Auto-generated constructor stub
+		
 	}
 
 	public User(String username, String email) {
 		super();
 		this.username = username;
 		this.email = email;
+	}
+
+	public User(String username) {
+		// TODO Auto-generated constructor stub
+		super();
+		this.username = username;
 	}
 
 	public String getUserId() {

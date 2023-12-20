@@ -21,28 +21,11 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 
+import NinjaAdventure.game.src.main.Main;
+
 public class SetupGameMode extends JFrame {
 
 	private JPanel contentPane;  
-	/**
-	 * Launch the application.
-	 */
-//	public static void main(String[] args) {
-//		EventQueue.invokeLater(new Runnable() {
-//			public void run() {
-//				try {
-//					SetupGameMode frame = new SetupGameMode();
-//					frame.setVisible(true);
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//				}
-//			}
-//		});
-//	}
-
-	/**
-	 * Create the frame.
-	 */
 	
 	public SetupGameMode(MultiScreenClient client) {	
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -75,6 +58,14 @@ public class SetupGameMode extends JFrame {
 		contentPane.add(lb_name);
 		
 		JLabel lb_solo = new JLabel("SOLO (1 PLAYER)");
+		lb_solo.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+					setVisible(false);
+					Main.initGame();
+					
+			}
+		});
 		lb_solo.setBackground(new Color(0, 0, 160));
 		lb_solo.setForeground(new Color(0, 0, 255));
 		lb_solo.setFont(new Font("Tahoma", Font.BOLD, 60));

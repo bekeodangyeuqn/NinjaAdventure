@@ -19,33 +19,20 @@ import javax.swing.border.EmptyBorder;
 import NinjaAdventure.socket.GameServer;
 import NinjaAdventure.socket.MultiScreenClient;
 import firebase.model.Room;
+import firebase.model.User;
 import firebase.views.CreateRoom.CreateRoomListener;
 
 public class RoomList extends JFrame  {
 
 	private JPanel contentPane;
 	private RoomListPanel roomListPanel;
-//	public static void main(String[] args) {
-//		EventQueue.invokeLater(new Runnable() {
-//			public void run() {
-//				try {
-//					RoomList frame = new RoomList();
-//					frame.setVisible(true);
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//				}
-//			}
-//		});
-//	}
+
 	public RoomList(MultiScreenClient client) {
 		 setTitle("Room List App");
 	        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	        setPreferredSize(new Dimension(400, 600));
 
 	        roomListPanel = new RoomListPanel();
-//	        for (Room room : GameServer.roomList) {
-//	        	roomListPanel.addRoom(room);
-//	        }
 
 	        JScrollPane scrollPane = new JScrollPane(roomListPanel);
 	        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
@@ -75,20 +62,16 @@ public class RoomList extends JFrame  {
 	}
 
 	
-	public void onRoomCreated(String username, String roomName, int numOfPlayers, String pass) {
+	public void onRoomCreated(User user, String roomName, int numOfPlayers, String pass) {
 		 Room newRoom = new Room(roomName, numOfPlayers);
 		 newRoom.setPass(pass);
-		 String player1 = username;
+		 User player1 = user;
 		 
-		 List<String> list= new ArrayList<String>();
+		 List<User> list= new ArrayList<User>();
 		 list.add(player1);
 		 newRoom.setCurUser(list.size());
 		 newRoom.setPlayers(list);
 	        roomListPanel.addRoom(newRoom);
-//	     GameServer.roomList.add(newRoom);
-//	     for (Room room : GameServer.roomList) {
-//	        	System.out.println(room.getName());
-//	        }
 	}
 
 	public void setRoomListPanel(RoomListPanel roomListPanel) {

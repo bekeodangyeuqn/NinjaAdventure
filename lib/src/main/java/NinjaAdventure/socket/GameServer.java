@@ -69,6 +69,14 @@ public class GameServer {
         }
     }
 	
+	public static void broadcastServerMessage(ServerMessage serverMessage, ClientHandler sender) {
+        for (ClientHandler client : clientHandlers) {
+        	if (client != sender) {
+                client.sendServerMessage(serverMessage);
+            }
+        }
+    }
+	
 	public static void checkUser(String username, String pass, ClientHandler clientHandler) {
 		DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().child("Users");
 	    Query checkUserDatabase = mDatabase.orderByChild("username").equalTo(username);
@@ -132,6 +140,54 @@ public class GameServer {
 				 System.out.println("Dang ky thanh cong");
 			}
 		});
+	}
+	
+	public static void handleCreateRoom(String username, String roomName, String password, int numOfPlayers, ClientHandler clientHandler) {
+		DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("Users");
+		DatabaseReference roomRef = FirebaseDatabase.getInstance().getReference().child("Rooms");
+		Query checkUserDatabase = userRef.orderByChild("username").equalTo(username);
+		String roomId = generateUUID();
+		Room room = new Room(roomName, numOfPlayers);
+		room.setPass(password);
+		room.setCurUser(1);
+		checkUserDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+
+	        @Override
+	        public void onDataChange(DataSnapshot snapshot) {
+
+	            if (snapshot.exists()) {
+	                for (DataSnapshot userSnapshot : snapshot.getChildren()) {
+	                    // Lặp qua mỗi người dùng phù hợp với tên người dùng
+	                    String usernameFromDB = userSnapshot.child("username").getValue(String.class);
+	                    if (usernameFromDB != null) {
+	                    	User player1 = userSnapshot.getValue(User.class);
+	                    	System.out.println("Player 1: " + player1.getUsername());
+	                    	// room.addAPlayer(player1);
+	                    	roomRef.child(roomId).setValue(room, null);
+	                    	roomRef.child(roomId).child("players").child(player1.getUserId()).setValue(true, null);
+	                    	ServerMessage message = new ServerMessage(ServerMessage.MSG_TYPE.CREATE_ROOM, ServerMessage.STATUS.SUCCESS, player1, roomName, password, numOfPlayers);
+           				    clientHandler.sendServerMessage(message);
+           				 // broadcastServerMessage(message, clientHandler);
+           				    System.out.println("Tao phong thanh cong");
+	                    } else {
+	                    	ServerMessage message = new ServerMessage(ServerMessage.MSG_TYPE.CREATE_ROOM, ServerMessage.STATUS.FAIL, "Username khong ton tai");
+	                    	broadcastServerMessage(message, clientHandler);
+	                    }
+	                }
+	            }else {
+	            	ServerMessage message = new ServerMessage(ServerMessage.MSG_TYPE.CREATE_ROOM, ServerMessage.STATUS.FAIL, "Incorrect email");
+	            	broadcastServerMessage(message, clientHandler);
+	            }
+
+	        }
+
+	        @Override
+	        public void onCancelled(DatabaseError error) {
+	            // Xử lý khi hủy bỏ
+	        	ServerMessage message = new ServerMessage(ServerMessage.MSG_TYPE.CREATE_ROOM, ServerMessage.STATUS.FAIL, "Connection to firebase failed");
+	        	broadcastServerMessage(message, clientHandler);	        
+	        }
+	    });
 	}
 	
     public void removeClient(ClientHandler client) {

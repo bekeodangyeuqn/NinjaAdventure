@@ -1,0 +1,1 @@
+package NinjaAdventure.game.src.object;

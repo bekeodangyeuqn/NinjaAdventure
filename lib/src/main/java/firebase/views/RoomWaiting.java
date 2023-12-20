@@ -4,6 +4,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 import firebase.model.Room;
+import firebase.model.User;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -190,8 +191,8 @@ public class RoomWaiting extends JFrame {
 
     	    // Cập nhật danh sách người chơi
     	    playerListModel.clear();
-    	    for (String player : room.getPlayers()) {
-    	        playerListModel.addElement("<html><span style='font-size:14pt; color:#336699;'>" + player + "</span></html>");
+    	    for (User player : room.getPlayers()) {
+    	        playerListModel.addElement("<html><span style='font-size:14pt; color:#336699;'>" + player.getUsername() + "</span></html>");
     	    }
 
     	    startButton.setEnabled(allPlayersReady());
@@ -236,13 +237,13 @@ public class RoomWaiting extends JFrame {
     }
 
     // Phương thức để xóa người chơi khỏi danh sách
-    private void removePlayer(String playerName) {
-    	System.out.println("Ten nguoi choi can xoa:"+playerName);
+    private void removePlayer(String player) {
+    	System.out.println("Ten nguoi choi can xoa:"+ player);
     	roomListPanel.deleteRoom(room);
-    	room.removeAplayer(playerName);
+    	room.removeAplayer(player);
     	
-    	for(String s: room.getPlayers()) {
-    		System.out.println("nguoi choi: "+s);
+    	for(User s: room.getPlayers()) {
+    		System.out.println("nguoi choi: "+ s.getUsername());
     	}
     	roomListPanel.addRoom(room);
     	updatePlayerList();    
@@ -251,8 +252,8 @@ public class RoomWaiting extends JFrame {
     private void updatePlayerList() {
         // Cập nhật danh sách người chơi trong playerListModel
         playerListModel.clear();
-        for (String player : room.getPlayers()) {
-            playerListModel.addElement("<html><span style='font-size:14pt; color:#336699;'>" + player + "</span></html>");
+        for (User player : room.getPlayers()) {
+            playerListModel.addElement("<html><span style='font-size:14pt; color:#336699;'>" + player.getUsername() + "</span></html>");
         }
        
     }

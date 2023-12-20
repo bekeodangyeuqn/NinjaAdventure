@@ -79,9 +79,10 @@ public class ClientHandler implements Runnable{
             	break;
             case CREATE_ROOM:
                 // Handle create room message
-//            	System.out.println("Handling create room...");
-//            	createRoomScreen.createNewRoom(this.getUsername(), clientMessage.getRoomname(), clientMessage.getNumOfPlayers(), clientMessage.getPasswordRoom());
-//            	System.out.println("Create room sucessfully");
+            	System.out.println("Handling create room...");
+//            	createRoomScreen.createNewRoom(this.getUsername(), clientMessage.getRoomname(), clientMessage.getNumOfPlayers(), clientMessage.getPasswordRoom());            	
+            	GameServer.handleCreateRoom(clientMessage.getUsername(), clientMessage.getRoomname(), clientMessage.getPasswordRoom(), clientMessage.getNumOfPlayers(), this);
+            	System.out.println("Create room sucessfully");
                 break;
             case JOIN_ROOM:
                 // Handle join room message

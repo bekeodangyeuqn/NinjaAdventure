@@ -28,28 +28,13 @@ public class Multiplayer_Mode extends JFrame {
 
 	private JPanel contentPane;
 	private JTextField txtEnterRoomId;
-	 private RoomList roomList;
-	/**
-	 * Launch the application.
-	 */
-//	public static void main(String[] args) {
-//		EventQueue.invokeLater(new Runnable() {
-//			public void run() {
-//				try {
-//					Multiplayer_Mode frame = new Multiplayer_Mode();
-//					frame.setVisible(true);
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//				}
-//			}
-//		});
-//	}
+	private RoomList roomList;
 
 	/**
 	 * Create the frame.
 	 */
 	public Multiplayer_Mode(MultiScreenClient client) {
-		
+		System.out.println("Screen multiPlayer mode username: " + client.getUsername());
 		initComponent(client);
 	}
 	
@@ -141,7 +126,7 @@ public class Multiplayer_Mode extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				setVisible(false);
-				roomList.setVisible(true);
+				new RoomList(client).setVisible(true);
 				
 			}
 		});

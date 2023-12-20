@@ -3,6 +3,8 @@ package NinjaAdventure.socket;
 import java.io.Serializable;
 
 public class ClientMessage implements Serializable{
+	// private static final long serialVersionUID = 5378198462073827524L;
+
 	enum MSG_TYPE {
 		LOGIN,
 		SIGNUP,
@@ -126,11 +128,12 @@ public class ClientMessage implements Serializable{
     }
     
  // Constructor for the CREATE_ROOM
-    public ClientMessage(MSG_TYPE message_type, String roomname, String passwordRoom, int numOfPlayers) {
+    public ClientMessage(MSG_TYPE message_type, String username, String roomname, String passwordRoom, int numOfPlayers) {
         this.msg_type = message_type;
         this.setRoomname(roomname);
         this.passwordRoom = passwordRoom;
         this.numOfPlayers = numOfPlayers;
+        this.username = username;
     }
 
 }

@@ -23,6 +23,8 @@ import java.io.File;
 import javax.swing.event.ChangeListener;
 
 import NinjaAdventure.socket.MultiScreenClient;
+import NinjaAdventure.socket.ServerMessage;
+import firebase.model.User;
 
 import javax.swing.event.ChangeEvent;
 import java.awt.event.KeyAdapter;
@@ -36,7 +38,7 @@ public class CreateRoom extends JFrame {
 	        void onRoomCreated(String roomName, int numOfPlayers, String pass);
 	    }
 
-	    private CreateRoomListener createRoomListener;
+	private CreateRoomListener createRoomListener;
 	private JPanel contentPane;
 	private JTextField textField_roomname;
 	private JTextField textField_pass;
@@ -52,6 +54,7 @@ public class CreateRoom extends JFrame {
 	 * Create the frame.
 	 */
 	public CreateRoom(RoomList roomList, MultiScreenClient client) {
+		System.out.println("Screen create room username: " + client.getUsername());
 		this.roomList = roomList;
 		initComponent(client);
 		clear();
@@ -159,7 +162,7 @@ public class CreateRoom extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				setVisible(false);
 				// createNewRoom(textField_roomname.getText(), (int) spinner.getValue(), textField_pass.getText());
-				client.createRoom(textField_roomname.getText(), textField_pass.getText(), (int) spinner.getValue());
+				client.createRoom(client.getUsername(), textField_roomname.getText(), textField_pass.getText(), (int) spinner.getValue());
 			}
 		});
 	}
@@ -180,22 +183,26 @@ public class CreateRoom extends JFrame {
 			btn_create.setEnabled(false);
 		}
 	}
-	public void createNewRoom(String username, String roomName, int numOfPlayers, String password) {
+	public void createNewRoom(ServerMessage serverMessage, MultiScreenClient client) {
+		System.out.println("Server status: " + serverMessage.getStatus());
+		if (serverMessage.getStatus() == ServerMessage.STATUS.SUCCESS ) {
+			System.out.println(serverMessage.getPayload());
+			clear();
+			if (serverMessage.getRoomname().isEmpty()) {
+	            JOptionPane.showMessageDialog(this, "Room Name is required", "Error", JOptionPane.ERROR_MESSAGE);
+	            return;
+	        }
 
-        // Validate input (bạn có thể thêm kiểm tra hợp lệ khác nếu cần)
-        if (roomName.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Room Name is required", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+	        // Thông báo cho lớp nghe biết rằng có phòng mới được tạo
+	       new RoomList(client).setVisible(true);
+		} else {
+			JOptionPane.showMessageDialog(null, "<html><b style=\"color:red\">" + serverMessage.getPayload()  + "</b>  </html>", "Message", JOptionPane.ERROR_MESSAGE);
+            clear();
+            System.out.println("Tao phong that bai");
+            setVisible(false);
+            client.createRoomScreen.setVisible(true);
+		}
 
-        // Thông báo cho lớp nghe biết rằng có phòng mới được tạo
-        if (roomList != null) {
-            roomList.onRoomCreated(username, roomName, numOfPlayers, password);
-        }
-
-        // Đóng cửa sổ tạo phòng sau khi tạo xong
-       
-        roomList.setVisible(true);
     }
 	public void setCreateRoomListener(CreateRoomListener createRoomListener) {
 		this.createRoomListener = createRoomListener;

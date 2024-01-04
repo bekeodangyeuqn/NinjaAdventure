@@ -10,6 +10,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import NinjaAdventure.socket.GameServer;
 import NinjaAdventure.socket.MultiScreenClient;
 
 import javax.swing.JLabel;
@@ -21,6 +22,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 
+import NinjaAdventure.game.src.main.GamePanel;
 import NinjaAdventure.game.src.main.Main;
 
 public class SetupGameMode extends JFrame {
@@ -62,7 +64,9 @@ public class SetupGameMode extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 					setVisible(false);
-					Main.initGame();
+//					GamePanel game = new GamePanel();
+//					Main.initGame();
+					client.joinGame(client.getUserId(), client.getUsername());
 					
 			}
 		});
@@ -77,10 +81,12 @@ public class SetupGameMode extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 					setVisible(false);
-					Multiplayer_Mode multiplayer_Mode = new Multiplayer_Mode(client);
-					multiplayer_Mode.setRoomList(new RoomList(client));
-					
-					multiplayer_Mode.setVisible(true);
+//					Multiplayer_Mode multiplayer_Mode = new Multiplayer_Mode(client);
+//					multiplayer_Mode.setRoomList(new RoomList(client));
+//					
+//					multiplayer_Mode.setVisible(true);
+//					client.joinGame(client.getUserId(), client.getUsername());
+					new GamePanel(client.getUsername()).startGameThread();
 			}
 		});
 		lb_multi.setForeground(Color.MAGENTA);

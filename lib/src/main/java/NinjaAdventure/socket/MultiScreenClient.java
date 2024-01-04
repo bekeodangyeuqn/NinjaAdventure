@@ -2,6 +2,11 @@ package NinjaAdventure.socket;
 
 import javax.swing.*;
 
+import NinjaAdventure.game.src.entity.PlayerMP;
+import NinjaAdventure.game.src.main.GamePanel;
+import NinjaAdventure.game.src.main.KeyHandler;
+import NinjaAdventure.game.src.main.Main;
+import firebase.model.Room;
 import firebase.views.CreateRoom;
 import firebase.views.ForgotPassWord;
 import firebase.views.Login;
@@ -19,8 +24,9 @@ import java.net.UnknownHostException;
 
 
 public class MultiScreenClient {
-	private static final String SERVER_IP = "127.0.0.1";
-    private static final int SERVER_PORT = 5502;
+	public static final String SERVER_IP = "127.0.0.1";
+	public static final int SERVER_PORT = 5502;
+	public GamePanel game;
 
     public Login loginScreen;
     public Signup signupScreen;
@@ -29,6 +35,7 @@ public class MultiScreenClient {
     public Multiplayer_Mode multiPlayerModeScreen;
     public SetupGameMode setupGameModeScreen;
     public RoomList roomListScreen;
+    public GamePanel gamePanel;
     
     private Socket socket;
     private ObjectOutputStream outputStream;
@@ -43,8 +50,18 @@ public class MultiScreenClient {
 	private String passwordRoom;
 	private int numOfPlayers;
 	private String roomname;
+	private Room room;
+	private String userId;
 	
 	
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
 	public Socket getSocket() {
 		return socket;
 	}
@@ -128,7 +145,6 @@ public class MultiScreenClient {
             try {
             	MultiScreenClient client = new MultiScreenClient();
                 client.initialize();
-                client.listenServerMessage();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -162,29 +178,55 @@ public class MultiScreenClient {
                 break;
             case JOIN_ROOM:
                 // Handle join room message
+            	roomListScreen.roomListPanel.updateRoomData(serverMessage, this);
                 break;
             case CHARMOVE:
             	// Handle char move message
+            	// gamePanel.update()
             	break;
             case PAUSE:
             	// Handle pause game message
             // Add more cases for other message types as needed
+//			case JOIN_GAME:
+//				GameServer server = serverMessage.getServer();
+//				KeyHandler keyH = new KeyHandler(server.game);
+//				PlayerMP player = new PlayerMP(server.game, keyH, this, serverMessage.getUserId(), serverMessage.getUsername());
+//				if (player != null) {
+//					server.playerMPs.add(player);
+//					server.game.player = player;
+//					server.game.entityList.add(player);
+//				}
+//				// server.sendToAllPlayers(serverMessage);
+//				Main.initGame(game);
+//				break;
+			default:
+				break;
         }
     }
+	
+	public void sendServerMessage(ServerMessage serverMessage) {
+		System.out.println("Server payload user id:" + serverMessage.getUserId());
+		try {
+            outputStream.writeObject(serverMessage);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+	}
 	
 	public void login(String username, String password) {
         try {
             ClientMessage message = new ClientMessage(ClientMessage.MSG_TYPE.LOGIN, username, password);
             outputStream.writeObject(message);
+            
+            new Thread(() -> {
+                try {             	
+                		ServerMessage serverMessage = (ServerMessage) inputStream.readObject();
+                        handleServerMessage(serverMessage);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }).start();
 
-//            new Thread(() -> {
-//                try {
-//                	ServerMessage serverMessage = (ServerMessage) inputStream.readObject();
-//                    handleServerMessage(serverMessage);
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//            }).start();
             System.out.println("Handle completed...");
 
             this.username = username;
@@ -197,29 +239,31 @@ public class MultiScreenClient {
         }
     }
 	
-	public void listenServerMessage() {
-		new Thread(new Runnable() {
-
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				ServerMessage serverMessage;
-				while (socket.isConnected()) {
-					try {
-						serverMessage = (ServerMessage) inputStream.readObject();
-						handleServerMessage(serverMessage);
-					} catch (ClassNotFoundException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}
-			
-		}).start();
-	}
+//	public void listenServerMessage() {
+//		new Thread(new Runnable() {
+//
+//			@Override
+//			public void run() {
+//				// TODO Auto-generated method stub
+//				ServerMessage serverMessage;
+//				while (socket.isConnected()) {
+//					try {
+//						System.out.println(inputStream.readObject().toString());
+//						serverMessage = (ServerMessage) inputStream.readObject();
+//						handleServerMessage(serverMessage);
+//						System.out.println(serverMessage.getMsg_type() + " completed");
+//					} catch (ClassNotFoundException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					} catch (IOException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
+//				}
+//			}
+//			
+//		}).start();
+//	}
 	
 	public void signup(String username, String password, String email, String fullname) {
         
@@ -227,14 +271,14 @@ public class MultiScreenClient {
             ClientMessage message = new ClientMessage(ClientMessage.MSG_TYPE.SIGNUP, username, password, fullname, email);
             outputStream.writeObject(message);
 
-//            new Thread(() -> {
-//                try {
-//                	ServerMessage serverMessage = (ServerMessage) inputStream.readObject();
-//                    handleServerMessage(serverMessage);
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//            }).start();
+            new Thread(() -> {
+                try {
+                	ServerMessage serverMessage = (ServerMessage) inputStream.readObject();
+                    handleServerMessage(serverMessage);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }).start();
 
             this.username = username;
             this.password = password;
@@ -250,20 +294,67 @@ public class MultiScreenClient {
         this.passwordRoom = passwordRoom;
         this.numOfPlayers = numOfPlayers;
         try {
-            ClientMessage joinMessage = new ClientMessage(ClientMessage.MSG_TYPE.CREATE_ROOM, username, roomname, passwordRoom, numOfPlayers);
-            outputStream.writeObject(joinMessage);
+            ClientMessage createMessage = new ClientMessage(ClientMessage.MSG_TYPE.CREATE_ROOM, username, roomname, passwordRoom, numOfPlayers);
+            outputStream.writeObject(createMessage);
+            
+            new Thread(() -> {
+                try {
+                	ServerMessage serverMessage = (ServerMessage) inputStream.readObject();
+                    handleServerMessage(serverMessage);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }).start();
 
-//            new Thread(() -> {
-//                try {
-//                	ServerMessage serverMessage = (ServerMessage) inputStream.readObject();
-//                    handleServerMessage(serverMessage);
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//            }).start();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+	
+	public void joinRoom(String userId, Room room, String password) {
+		this.userId = userId;
+        this.room = room;
+        this.passwordRoom = password;
+        
+		try {
+            ClientMessage joinMessage = new ClientMessage(ClientMessage.MSG_TYPE.JOIN_ROOM, userId, room, password);
+            outputStream.writeObject(joinMessage);
+            
+            new Thread(() -> {
+                try {
+                	ServerMessage serverMessage = (ServerMessage) inputStream.readObject();
+                    handleServerMessage(serverMessage);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }).start();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+	}
+	
+	public void joinGame(String userId, String username) {
+		this.username = username;
+        this.userId = userId;
+		try {
+            ClientMessage joinMessage = new ClientMessage(ClientMessage.MSG_TYPE.JOIN_GAME, userId, username);
+            outputStream.writeObject(joinMessage);
+            
+            new Thread(() -> {
+                try {
+                	ServerMessage serverMessage = (ServerMessage) inputStream.readObject();
+                    handleServerMessage(serverMessage);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }).start();
+            
+            System.out.println("Handle join game completed");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+	}
 
 }

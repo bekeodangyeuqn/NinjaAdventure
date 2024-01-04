@@ -1,5 +1,7 @@
 package NinjaAdventure.game.src.main;
 
+import java.io.Serializable;
+
 import NinjaAdventure.game.src.entity.Entity;
 import NinjaAdventure.game.src.object.OBJ_Axe;
 import NinjaAdventure.game.src.object.OBJ_Boots;
@@ -20,10 +22,10 @@ import NinjaAdventure.game.src.object.OBJ_Shield_Wood;
 import NinjaAdventure.game.src.object.OBJ_Sword_Normal;
 import NinjaAdventure.game.src.object.OBJ_Tent;
 
-public class EntityGenerator {
+public class EntityGenerator implements Serializable{
 	GamePanel gp;
 	
-	public EntityGenerator(GamePanel gp) {
+	public EntityGenerator(GamePanel gp)  {
 		this.gp = gp;
 	}
 	

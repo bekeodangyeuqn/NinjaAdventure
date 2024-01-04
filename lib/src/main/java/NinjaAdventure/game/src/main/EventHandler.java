@@ -1,11 +1,12 @@
 package NinjaAdventure.game.src.main;
 
 import java.awt.Rectangle;
+import java.io.Serializable;
 
 import NinjaAdventure.game.src.data.Progress;
 import NinjaAdventure.game.src.entity.Entity;
 
-public class EventHandler {
+public class EventHandler implements Serializable{
 	GamePanel gp;
 	EventRect eventRect[][][];
 	Entity eventMaster;

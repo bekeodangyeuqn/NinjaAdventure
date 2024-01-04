@@ -25,6 +25,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import NinjaAdventure.socket.GameServer;
+import NinjaAdventure.socket.MultiScreenClient;
 import NinjaAdventure.socket.ServerMessage;
 import firebase.model.*;
 
@@ -36,9 +37,9 @@ import javax.swing.Box;
 
 public class RoomListPanel extends JPanel {
 
-	private List<Room> rooms;
+	private List<Room> rooms = new ArrayList<>();
 	
-	public RoomListPanel() {
+	public RoomListPanel(MultiScreenClient client) {
 		RoomListPanel _this = this;
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 //	    this.rooms = new ArrayList<>();
@@ -50,13 +51,13 @@ public class RoomListPanel extends JPanel {
 
 		        @Override
 		        public void onDataChange(DataSnapshot snapshot) {
-		        	ArrayList<Room> roomList = new ArrayList<>();
+		        	//ArrayList<Room> roomList = new ArrayList<>();
 		            if (snapshot.exists()) {
 		                for (DataSnapshot roomSnapshot : snapshot.getChildren()) {
 		                    	String passwordFromDB = roomSnapshot.child("pass").getValue(String.class);
 		                        String roomnameFromDB = roomSnapshot.child("name").getValue(String.class);
-		                        int numOfPLayersFromDB = roomSnapshot.child("curUser").getValue(Integer.class);
-		                        int curUserFromDB =  roomSnapshot.child("numOfPlayers").getValue(Integer.class);
+		                        int numOfPLayersFromDB = roomSnapshot.child("numOfPlayers").getValue(Integer.class);
+		                        int curUserFromDB =  roomSnapshot.child("curUser").getValue(Integer.class);
 		                        Room room = new Room(roomnameFromDB, numOfPLayersFromDB);
 		                		room.setPass(passwordFromDB);
 		                		room.setCurUser(curUserFromDB);
@@ -89,8 +90,8 @@ public class RoomListPanel extends JPanel {
 		                        	
 		                        });
 		                		
-		                		roomList.add(room);
-		                		updateUI1(roomList);
+		                		rooms.add(room);
+		                		updateUI1(rooms, client);
 		                		// System.out.println("Add room to panel: " + room.getName());
 		                }
 		            }else {
@@ -111,16 +112,16 @@ public class RoomListPanel extends JPanel {
 		this.rooms = fbRooms;
 	}
 
-	public void addRoom(Room room) {
+	public void addRoom(Room room, MultiScreenClient client) {
         rooms.add(room);
-        updateUI1(rooms);
+        updateUI1(rooms, client);
     }
 	    
-	public void updateUI1(List<Room> roomList) {
+	public void updateUI1(List<Room> roomList, MultiScreenClient client) {
 		removeAllComponents(); // Clear previous components
 
         for (Room room : roomList) {
-            add(createRoomPanel(room));
+            add(createRoomPanel(room, client));
             add(Box.createRigidArea(new Dimension(0, 10))); // Add some space between rooms
         }
 
@@ -128,7 +129,7 @@ public class RoomListPanel extends JPanel {
         repaint();
     }
 
-	   private JPanel createRoomPanel(Room room) {
+	   private JPanel createRoomPanel(Room room, MultiScreenClient client) {
 		    JPanel panel = new JPanel();
 		    panel.setLayout(new BorderLayout());
 		    panel.setBackground(Color.PINK);
@@ -161,33 +162,27 @@ public class RoomListPanel extends JPanel {
 	            @Override
 	            public void mouseClicked(MouseEvent e) {	
 	            	 if(room.getCurUser()==room.getNumOfPlayers()) {
-	            		 RoomWaiting roomWaiting = new RoomWaiting(room);
+	            		 RoomWaiting roomWaiting = new RoomWaiting(room, client);
 	            		 roomWaiting.setRoomListPanel(RoomListPanel.this);
 	            		 roomWaiting.setVisible(true);
 	            		
 	            	 }else {
 	            		// Hiển thị hộp thoại popup để nhập thông tin
 		            	    JPanel panel = new JPanel();
-		            	    JTextField usernameField = new JTextField(10);
+		            	
 		            	    JPasswordField passwordField = new JPasswordField(10);
-		            	    panel.add(new JLabel("Username:"));
-		            	    panel.add(usernameField);
+		            	
 		            	    panel.add(new JLabel("Password:"));
 		            	    panel.add(passwordField);
 		            	    int result = JOptionPane.showConfirmDialog(RoomListPanel.this, panel, "Enter your information", JOptionPane.OK_CANCEL_OPTION);
 		            	    // Kiểm tra xem người dùng đã ấn OK hay không
 		            	    if (result == JOptionPane.OK_OPTION) {
-		            	        String username = usernameField.getText();
-		            	        User user = new User(username);
+		            	        
 		            	        char[] passwordChars = passwordField.getPassword();
 		            	        String password = new String(passwordChars);
-		            	        if (password.equals(room.getPass())) {
-	            	                // Cập nhật dữ liệu và hiển thị
-	            	                updateRoomData(room, user);            	             
-	            	            } else {
-	            	                // Thông báo sai password
-	            	                JOptionPane.showMessageDialog(RoomListPanel.this, "Wrong password. Please try again.");
-	            	            }	            	       
+		            	        client.joinRoom(client.getUserId(), room, password);
+		            	        rooms.remove(room);
+		            	        updateUI1(rooms, client);
 		            	    }
 	            	 }	            		            		                     
 	            }
@@ -202,7 +197,7 @@ public class RoomListPanel extends JPanel {
 	            container.remove(component);
 	        }
 	    }
-	    private void showDeleteConfirmation(Room room) {
+	    private void showDeleteConfirmation(Room room, MultiScreenClient client) {
 	        int option = JOptionPane.showConfirmDialog(
 	                this,
 	                "Do you want to delete room '" + room.getName() + "'?",
@@ -210,34 +205,55 @@ public class RoomListPanel extends JPanel {
 	                JOptionPane.YES_NO_OPTION);
 
 	        if (option == JOptionPane.YES_OPTION) {
-	            deleteRoom(room);
+	            deleteRoom(room, client);
 	        }
 	    }
 
-	    public void deleteRoom(Room room) {
+	    public void deleteRoom(Room room, MultiScreenClient client) {
 	        rooms.remove(room);
-	        updateUI1(rooms);
+	        updateUI1(rooms, client);
 	    }
 	    
-	    private void updateRoomData(Room room,User username) {
-	    	int x = room.getCurUser();
-	    	int y = room.getNumOfPlayers();
-	    	if(x+1>y) {
-	    		JOptionPane.showMessageDialog(null, "<html><b style=\"color:red\"> Room full people, can't join   </b>  </html>", "Message", JOptionPane.ERROR_MESSAGE);
-	    		 return;
-	    	}
-	    	List<User> list = room.getPlayers();
-	    	list.add(username);
-	    	room.setPlayers(list);
-	    	
-	    	room.setCurUser(x+1);
-	    	updateUI1(rooms);
+	    public void updateRoomData(ServerMessage serverMessage, MultiScreenClient client) {
+//	    	int x = room.getCurUser();
+//	    	int y = room.getNumOfPlayers();
+//	    	if(x+1>y) {
+//	    		JOptionPane.showMessageDialog(null, "<html><b style=\"color:red\"> Room full people, can't join   </b>  </html>", "Message", JOptionPane.ERROR_MESSAGE);
+//	    		 return;
+//	    	}
+//	    	List<User> list = room.getPlayers();
+//	    	list.add(client);
+//	    	room.setPlayers(list);
+//	    	
+//	    	room.setCurUser(x+1);
+//	    	updateUI1(rooms, client);
+	    	if (serverMessage.getStatus() == ServerMessage.STATUS.SUCCESS ) {
+				System.out.println("Server message join room: " + serverMessage.getRoom().getName());
+				for (User player : serverMessage.getRoom().getPlayers()) {
+					System.out.println("Player in room: " + player);
+				}
+//		    	rooms.add(serverMessage.getRoom());
+//		    	updateUI1(rooms, client);
+				Room updatedRoom = serverMessage.getRoom();
+				updatedRoom.setCurUser(serverMessage.getRoom().getCurUser() + 1);
+				User player = new User();
+				player.setUsername(client.getUsername());
+				player.setUserId(client.getUserId());
+				updatedRoom.addAPlayer(player);
+				RoomWaiting roomWaitingScreen = new RoomWaiting(updatedRoom, client);
+				roomWaitingScreen.setVisible(true);
+		    	rooms.add(updatedRoom);
+		    	updateUI1(rooms, client);
+			} else {
+				JOptionPane.showMessageDialog(null, "<html><b style=\"color:red\">" + serverMessage.getPayload()  + "</b>  </html>", "Message", JOptionPane.ERROR_MESSAGE);
+	            System.out.println("Vao phong that bai");
+			}
 	    }
-	    public void removeAPlayer(Room room,String username) {
+	    public void removeAPlayer(Room room,MultiScreenClient client) {
 	    	rooms.remove(room);
 	    	
 	    	rooms.add(room);
-	    	updateUI1(rooms);
+	    	updateUI1(rooms, client);
 	    	
 	    }
 }

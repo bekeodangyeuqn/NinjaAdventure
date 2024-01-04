@@ -1,6 +1,8 @@
 package NinjaAdventure.game.src.ai;
 
-public class Node {
+import java.io.Serializable;
+
+public class Node implements Serializable{
 	Node parent;
 	public int col;
 	public int row;

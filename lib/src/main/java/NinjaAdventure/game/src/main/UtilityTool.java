@@ -2,8 +2,9 @@ package NinjaAdventure.game.src.main;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.Serializable;
 
-public class UtilityTool {	
+public class UtilityTool implements Serializable{	
 	public BufferedImage scaleImage(BufferedImage original, int width, int height) {
 		BufferedImage scaledImage = new BufferedImage(width, height, original.getType());
 		Graphics2D g2 = scaledImage.createGraphics();

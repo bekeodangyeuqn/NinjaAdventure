@@ -5,10 +5,11 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RadialGradientPaint;
 import java.awt.image.BufferedImage;
+import java.io.Serializable;
 
 import NinjaAdventure.game.src.main.GamePanel;
 
-public class Lightning {
+public class Lightning implements Serializable{
 	GamePanel gp;
 	BufferedImage darknessFilter;
 	public int dayCounter;

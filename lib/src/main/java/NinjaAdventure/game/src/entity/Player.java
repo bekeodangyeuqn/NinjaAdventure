@@ -13,21 +13,27 @@ import NinjaAdventure.game.src.object.OBJ_Key;
 import NinjaAdventure.game.src.object.OBJ_Lantern;
 import NinjaAdventure.game.src.object.OBJ_Shield_Wood;
 import NinjaAdventure.game.src.object.OBJ_Sword_Normal;
+import NinjaAdventure.socket.packet.Packet02Move;
 
 public class Player extends Entity {
 	KeyHandler keyH;
 	
-	public final int screenX;
-	public final int screenY;
+	public int screenX;
+	public int screenY;
+	
+	private String userId;
+	private String username;
 	
 	int standCounter = 0;
 	public boolean attackCanceled = false;
 	public boolean lightUpdated = false;
 	
-	public Player(GamePanel gp, KeyHandler keyH) {
-		super(gp);
+	public Player(GamePanel gp, KeyHandler keyH, String userId, String username) {
+		super(gp, "Player");
 		
 		this.keyH = keyH;
+		this.userId = userId;
+		this.username = username;
 		
 		screenX = gp.screenWidth / 2 - (gp.tileSize / 2);
 		screenY = gp.screenHeight / 2 - (gp.tileSize / 2);
@@ -46,9 +52,233 @@ public class Player extends Entity {
 		setDefaultValues();
 	}
 	
+	public Player(GamePanel game, KeyHandler input, String username) {
+        super(game, "Player");
+        this.keyH = input;
+        this.username = username;
+		
+		screenX = gp.screenWidth / 2 - (gp.tileSize / 2);
+		screenY = gp.screenHeight / 2 - (gp.tileSize / 2);
+		
+		solidArea = new Rectangle();
+		solidArea.x = 8;
+		solidArea.y = 16;
+		solidAreaDefaultX = solidArea.x;
+		solidAreaDefaultY = solidArea.y;
+		solidArea.width = 32;
+		solidArea.height = 32;
+        
+        setDefaultValues();
+    }
+	
+	public Player(GamePanel game, KeyHandler input, String username, int x, int y)
+	{
+		super(game, "Player");
+        this.keyH = input;
+        this.username = username;
+		
+		screenX = gp.screenWidth / 2 - (gp.tileSize / 2);
+		screenY = gp.screenHeight / 2 - (gp.tileSize / 2);
+		
+		solidArea = new Rectangle();
+		solidArea.x = 8;
+		solidArea.y = 16;
+		solidAreaDefaultX = solidArea.x;
+		solidAreaDefaultY = solidArea.y;
+		solidArea.width = 32;
+		solidArea.height = 32;
+        
+        setDefaultValues();
+        
+        worldX = x;
+        worldY = y;
+	}
+	
+	public String getUserId() {
+		return userId;
+	}
+
+
+
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
+
+
+	public String getUsername() {
+		return username;
+	}
+
+
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	
+	public void draw2(Graphics2D g2) {
+		BufferedImage image = null;
+
+		if (super.inCamera() == true) {
+			int tempScreenX = super.getScreenX();
+			int tempScreenY = super.getScreenY();
+
+			switch (direction) {
+				case "up":
+					if (attacking == false) {
+						if (spriteNum == 1) {
+							image = up1;
+						}
+						if (spriteNum == 2) {
+							image = up2;
+						}
+					} else {
+						tempScreenY = getScreenY() - up1.getHeight();
+						if (spriteNum == 1) {
+							image = attackUp1;
+						}
+						if (spriteNum == 2) {
+							image = attackUp2;
+						}
+					}
+					// if (spriteNum == 0) {
+					// image = up0;
+					// }
+					break;
+				case "down":
+					// if (spriteNum == 0) {
+					// image = down0;
+					// }
+					if (attacking == false) {
+						if (spriteNum == 1) {
+							image = down1;
+						}
+						if (spriteNum == 2) {
+							image = down2;
+						}
+					} else {
+						if (spriteNum == 1) {
+							image = attackDown1;
+						}
+						if (spriteNum == 2) {
+							image = attackDown2;
+						}
+					}
+					break;
+				case "left":
+					// if (spriteNum == 0) {
+					// image = left0;
+					// }
+					if (attacking == false) {
+						if (spriteNum == 1) {
+							image = left1;
+						}
+						if (spriteNum == 2) {
+							image = left2;
+						}
+					} else {
+						tempScreenX = getScreenX() - left1.getWidth();
+						if (spriteNum == 1) {
+							image = attackLeft1;
+						}
+						if (spriteNum == 2) {
+							image = attackLeft2;
+						}
+					}
+					break;
+				case "right":
+					// if (spriteNum == 0) {
+					// image = right0;
+					// }
+					if (attacking == false) {
+						if (spriteNum == 1) {
+							image = right1;
+						}
+						if (spriteNum == 2) {
+							image = right2;
+						}
+					} else {
+						if (spriteNum == 1) {
+							image = attackRight1;
+						}
+						if (spriteNum == 2) {
+							image = attackRight2;
+						}
+					}
+					break;
+			}
+
+			// Monster health bar
+			// if (type == 2 && hpBarOn == true) {
+			// double oneScale = (double)gp.tileSize/maxLife;
+			// double hpBarValue = oneScale*life;
+			//
+			// g2.setColor(new Color(35, 35, 35));
+			// g2.fillRect(getScreenX() - 1, getScreenY() - 16, gp.tileSize + 2, 12);
+			// g2.setColor(new Color(255, 0, 30));
+			// g2.fillRect(getScreenX(), getScreenY() - 15, (int)hpBarValue, 10);
+			//
+			// hpBarCounter++;
+			//
+			// if (hpBarCounter > 144 * 10) {
+			// hpBarCounter = 0;
+			// hpBarOn = false;
+			// }
+			// }
+
+			if (invincible == true) {
+				hpBarOn = true;
+				hpBarCounter = 0;
+				changeAlpha(g2, 0.4F);
+			}
+			if (dying == true) {
+				dyingAnimation(g2);
+			}
+
+			g2.drawImage(image, tempScreenX, tempScreenY, null);
+
+			// Reset alpha
+			changeAlpha(g2, 1F);
+		}
+	}
+
+	public KeyHandler getKeyH() {
+		return keyH;
+	}
+
+	public void setKeyH(KeyHandler keyH) {
+		this.keyH = keyH;
+	}
+
+	public GamePanel getGp() {
+		return gp;
+	}
+
+	public void setGp(GamePanel gp) {
+		this.gp = gp;
+	}
+	
+	
+
+	public int getScreenX() {
+		return screenX;
+	}
+
+	public void setScreenX(int screenX) {
+		this.screenX = screenX;
+	}
+
+	public int getScreenY() {
+		return screenY;
+	}
+
+	public void setScreenY(int screenY) {
+		this.screenY = screenY;
+	}
+
 	public void setDefaultValues() {
-		worldX = gp.tileSize * 23;
-		worldY = gp.tileSize * 21;
+//		worldX = gp.tileSize * 23;
+//		worldY = gp.tileSize * 21;
 //		worldX = gp.tileSize * 12;
 //		worldY = gp.tileSize * 13;
 //		worldX = gp.tileSize * 40;
@@ -85,6 +315,7 @@ public class Player extends Entity {
 		getGuardImage();
 		setItems();
 		setDialogue();
+		System.out.println("Set up player: " + this.getUsername() + ", HandleKey: " + this.getKeyH());
 	}
 	
 	public void setDefaultPositions() {
@@ -228,6 +459,7 @@ public class Player extends Entity {
 	}
 	
 	public void update() {
+		if (keyH != null) {
 		if (knockBack) {
 //			Check tile collision
 			collisionOn = false;
@@ -244,6 +476,7 @@ public class Player extends Entity {
 
 //			Check interactive tile collision
 			gp.cChecker.checkEntity(this, gp.iTile);
+			
 			
 			if (collisionOn == true) {
 				knockBackCounter = 0;
@@ -273,131 +506,150 @@ public class Player extends Entity {
 				knockBack = false;
 				speed = defaultSpeed;
 			}
-		} 
-		else if (attacking == true) {
+		} else if (attacking == true) {
 			attacking();
 		}
-		else if (keyH.spacePressed == true) {
-			guarding = true;
-			guardCounter++;
-		}
-		else if (
-				keyH.upPressed == true || 
-				keyH.downPressed == true || 
-				keyH.leftPressed == true || 
-				keyH.rightPressed == true ||
-				keyH.enterPressed == true)
-		{
-			if (keyH.upPressed == true) {
-				direction = "up";
-			} else if (keyH.downPressed == true) {
-				direction = "down";
-			} else if (keyH.leftPressed == true) {
-				direction = "left";
-			} else if (keyH.rightPressed == true) {
-				direction = "right";
-			}
 			
-//			Check tile collision
-			collisionOn = false;
-			gp.cChecker.checkTile(this);
-			
-//			Check object collision
-			int objIndex = gp.cChecker.checkObject(this, true);
-			pickUpObject(objIndex);
-			
-//			Check NPCs collision
-			int npcIndex = gp.cChecker.checkEntity(this, gp.npc);
-			interactNPC(npcIndex);
-			
-//			Check monster collision
-			int monsterIndex = gp.cChecker.checkEntity(this, gp.monster);
-			contactMonster(monsterIndex);
-			
-//			Check interactive tile collision
-			gp.cChecker.checkEntity(this, gp.iTile);
-			
-//			Check event
-			gp.eHandler.checkEvent();
-			
-//			IF COLLISION is false, player can move
-			if (collisionOn == false && keyH.enterPressed == false) {
-				switch (direction) {
-				case "up":
-					worldY -= speed;
-					break;
-				case "down":
-					worldY += speed;
-					break;
-				case "left":
-					worldX -= speed;
-					break;
-				case "right":
-					worldX += speed;
-					break;
+			if (keyH.spacePressed == true) {
+				guarding = true;
+				guardCounter++;
+			} else if (
+					keyH.upPressed == true || 
+					keyH.downPressed == true || 
+					keyH.leftPressed == true || 
+					keyH.rightPressed == true ||
+					keyH.enterPressed == true)
+			{
+				System.out.println("Player pressed: " + this.getUsername());
+				if (keyH.upPressed == true) {
+					direction = "up";
+				} else if (keyH.downPressed == true) {
+					direction = "down";
+				} else if (keyH.leftPressed == true) {
+					direction = "left";
+				} else if (keyH.rightPressed == true) {
+					direction = "right";
 				}
-			}
-			
-			if (keyH.enterPressed == true && attackCanceled == false) {
-				gp.playSE(7);
-				attacking = true;
-				spriteCounter = 0;
-			}
-			
-			attackCanceled = false;
-			gp.keyH.enterPressed = false;
-			guarding = false;
-			guardCounter = 0;
-			
-	//		Because we are using 144 FPS, so every 24 frames we'll re-draw the player once 
-			spriteCounter++;
-			if (spriteCounter > 24) {
-//				if (spriteNum == 0) {
-//					spriteNum = 1;
-//				}
-//				else 
-				if (spriteNum == 1) {
-					spriteNum = 2;
+				
+//				Check tile collision
+				collisionOn = false;
+				gp.cChecker.checkTile(this);
+				
+//				Check object collision
+				int objIndex = gp.cChecker.checkObject(this, true);
+				pickUpObject(objIndex);
+				
+//				Check NPCs collision
+				int npcIndex = gp.cChecker.checkEntity(this, gp.npc);
+				interactNPC(npcIndex);
+				
+//				Check monster collision
+				int monsterIndex = gp.cChecker.checkEntity(this, gp.monster);
+				contactMonster(monsterIndex);
+				
+//				Check interactive tile collision
+				gp.cChecker.checkEntity(this, gp.iTile);
+				
+//				Check event
+				gp.eHandler.checkEvent();
+				
+//				IF COLLISION is false, player can move
+				if (collisionOn == false && keyH.enterPressed == false) {
+					switch (direction) {
+					case "up":
+						worldY -= speed;
+						break;
+					case "down":
+						worldY += speed;
+						break;
+					case "left":
+						worldX -= speed;
+						break;
+					case "right":
+						worldX += speed;
+						break;
+					}
 				}
-				else if (spriteNum == 2) {
+				
+				if (keyH.enterPressed == true && attackCanceled == false) {
+					gp.playSE(7);
+					attacking = true;
+					spriteCounter = 0;
+				}
+				
+				attackCanceled = false;
+				gp.keyH.enterPressed = false;
+				guarding = false;
+				guardCounter = 0;
+				
+		//		Because we are using 144 FPS, so every 24 frames we'll re-draw the player once 
+				spriteCounter++;
+				if (spriteCounter > 24) {
+//					if (spriteNum == 0) {
+//						spriteNum = 1;
+//					}
+//					else 
+					if (spriteNum == 1) {
+						spriteNum = 2;
+					}
+					else if (spriteNum == 2) {
+						spriteNum = 1;
+					}
+					spriteCounter = 0;
+				}
+			} else {
+//				If user | player did not press any keys
+				standCounter++;
+				if (standCounter == 24) {
 					spriteNum = 1;
+					standCounter = 0;
 				}
-				spriteCounter = 0;
+				guarding = false;
+				guardCounter = 0;
 			}
-		} else {
-//			If user | player did not press any keys
-			standCounter++;
-			if (standCounter == 24) {
-				spriteNum = 1;
-				standCounter = 0;
+			
+			if (gp.keyH.shotKeyPressed == true && 
+					projectile.alive == false && 
+					shotAvailableCounter == 72 && 
+					projectile.haveResource(this)) 
+			{
+//				Set default coordinates, direction and user
+				projectile.set(worldX, worldY, direction, true, this);
+				
+//				Subtract cost
+				projectile.subtractResource(this);
+				
+//				Add to the list
+				for (int i = 0; i < gp.projectile[1].length; ++i) {
+					if (gp.projectile[gp.currentMap][i] == null) {
+						gp.projectile[gp.currentMap][i] = projectile;
+						break;
+					}
+				}
+				gp.playSE(10);
+				
+				shotAvailableCounter = 0;
 			}
-			guarding = false;
-			guardCounter = 0;
-		}
-		
-		if (gp.keyH.shotKeyPressed == true && 
-				projectile.alive == false && 
-				shotAvailableCounter == 72 && 
-				projectile.haveResource(this)) 
-		{
-//			Set default coordinates, direction and user
-			projectile.set(worldX, worldY, direction, true, this);
 			
-//			Subtract cost
-			projectile.subtractResource(this);
-			
-//			Add to the list
-			for (int i = 0; i < gp.projectile[1].length; ++i) {
-				if (gp.projectile[gp.currentMap][i] == null) {
-					gp.projectile[gp.currentMap][i] = projectile;
-					break;
+			if (keyH.godModeOn == false) {
+				if (life <= 0) {
+					gp.gameState = gp.gameOverState;
+					gp.ui.commandNum = -1;
+//					gp.stopMusic();
+					gp.playSE(12);
 				}
 			}
-			gp.playSE(10);
-			
-			shotAvailableCounter = 0;
-		}
-		
+			else {
+				strength = 50;
+				getAttack();
+				dexterity = 50;
+				getDefense();
+				maxLife = 20;
+				life = maxLife;
+				maxMana = 12;
+				mana = maxMana;
+				speed = 4;
+			}
 //		This needs to be outside of key if statement!
 		if (invincible == true) {
 			invincibleCounter++;
@@ -419,26 +671,9 @@ public class Player extends Entity {
 		if (mana > maxMana) {
 			mana = maxMana;
 		}
-		
-		if (keyH.godModeOn == false) {
-			if (life <= 0) {
-				gp.gameState = gp.gameOverState;
-				gp.ui.commandNum = -1;
-				gp.stopMusic();
-				gp.playSE(12);
-			}
-		}
-		else {
-			strength = 50;
-			getAttack();
-			dexterity = 50;
-			getDefense();
-			maxLife = 20;
-			life = maxLife;
-			maxMana = 12;
-			mana = maxMana;
-			speed = 4;
-		}
+	}
+//		Packet02Move packet = new Packet02Move(this.getUsername(), this.worldX, this.worldY);
+//        packet.writeData(GamePanel.game.socketClient);
 	}
 	
 	public void damageProjectile(int i) {

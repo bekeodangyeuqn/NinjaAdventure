@@ -1,11 +1,12 @@
 package NinjaAdventure.game.src.ai;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import NinjaAdventure.game.src.entity.Entity;
 import NinjaAdventure.game.src.main.GamePanel;
 
-public class PathFinder {
+public class PathFinder implements Serializable{
 	GamePanel gp;
 	Node[][] node;
 	ArrayList<Node> openList = new ArrayList<>();

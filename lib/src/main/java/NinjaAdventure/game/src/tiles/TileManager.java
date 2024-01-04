@@ -7,13 +7,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 
 import javax.imageio.ImageIO;
 
 import NinjaAdventure.game.src.main.GamePanel;
 import NinjaAdventure.game.src.main.UtilityTool;
 
-public class TileManager {
+public class TileManager implements Serializable{
 	GamePanel gp;
 	public Tile[] tile;
 	public int mapTileNum[][][];

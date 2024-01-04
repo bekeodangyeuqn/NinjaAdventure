@@ -9,6 +9,7 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
@@ -16,6 +17,7 @@ import NinjaAdventure.game.src.object.OBJ_Coin_Bronze;
 import NinjaAdventure.game.src.object.OBJ_Heart;
 import NinjaAdventure.game.src.object.OBJ_ManaCrystal;
 import NinjaAdventure.game.src.entity.Entity;
+import NinjaAdventure.game.src.entity.Player;
 
 public class UI {
 	GamePanel gp;
@@ -124,6 +126,18 @@ public class UI {
 		}
 	}
 	
+	public void drawPlayerName() {
+		int y = gp.tileSize;
+		g2.setColor(Color.white);
+		g2.setFont(g2.getFont().deriveFont(32F));
+//		for (Player p : gp.players) {
+//			String text = p.getUsername();
+//			int x = getXForCenteredText(text);
+//			g2.drawString(text, x, y);
+//			y += gp.tileSize;
+//		}
+	}
+	
 	public void draw(Graphics2D g2) {
 		this.g2 = g2;
 		
@@ -138,6 +152,7 @@ public class UI {
 		if (gp.gameState == gp.playState) {
 //			TODO:
 			drawPlayerLife();
+			drawPlayerName();
 			drawMonsterLife();
 			drawMessage();
 		}

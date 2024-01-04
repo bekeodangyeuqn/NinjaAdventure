@@ -1,8 +1,10 @@
 package NinjaAdventure.game.src.main;
 
+import java.io.Serializable;
+
 import NinjaAdventure.game.src.entity.Entity;
 
-public class CollisionChecker {
+public class CollisionChecker implements Serializable{
 	GamePanel gp;
 
 	public CollisionChecker(GamePanel gp) {

@@ -4,10 +4,11 @@ import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.Serializable;
 
 import NinjaAdventure.game.src.main.GamePanel;
 
-public class Map extends TileManager {
+public class Map extends TileManager implements Serializable{
 	GamePanel gp;
 	BufferedImage worldMap[];
 	public boolean miniMapOn = false;

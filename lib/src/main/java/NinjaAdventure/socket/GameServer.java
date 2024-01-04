@@ -3,6 +3,7 @@ package NinjaAdventure.socket;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -19,19 +20,25 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.database.DatabaseReference.CompletionListener;
 import com.google.firebase.database.annotations.NotNull;
 
+import NinjaAdventure.game.src.entity.PlayerMP;
+import NinjaAdventure.game.src.main.GamePanel;
 import firebase.model.Room;
 import firebase.model.User;
 import firebase.views.SetupGameMode;
 
 import static firebase.util.Common.generateUUID;
 import static firebase.util.Common.initFirebase;
-public class GameServer {
+
+public class GameServer implements Serializable{
 	
-	private ServerSocket serverSocket;
+	private transient ServerSocket serverSocket;
 	public static ArrayList<ClientHandler> clientHandlers = new ArrayList<>();
+	public ArrayList<PlayerMP> playerMPs = new ArrayList<>();
+	public GamePanel game;
 	public GameServer(ServerSocket serverSocket) {
 		this.serverSocket = serverSocket;
 	}
+	
 	
 	public void startServer() {
 		try {
@@ -77,6 +84,12 @@ public class GameServer {
         }
     }
 	
+	public void sendToAllPlayers(ServerMessage serverMessage) {
+		for (PlayerMP player : playerMPs) {
+			player.clientScreen.sendServerMessage(serverMessage);
+		}
+	}
+	
 	public static void checkUser(String username, String pass, ClientHandler clientHandler) {
 		DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().child("Users");
 	    Query checkUserDatabase = mDatabase.orderByChild("username").equalTo(username);
@@ -95,8 +108,10 @@ public class GameServer {
 	                        String fullnameFromDB = userSnapshot.child("fullname").getValue(String.class);
 	                        String emailFromDB = userSnapshot.child("email").getValue(String.class);
 	                        String usernameFromDB = userSnapshot.child("username").getValue(String.class);
+	                        String userIdFromDB = userSnapshot.child("userId").getValue(String.class);
 	                        System.out.println("Dang nhap thanh cong");
-	                        ServerMessage message = new ServerMessage(ServerMessage.MSG_TYPE.LOGIN, ServerMessage.STATUS.SUCCESS, username);
+	                        System.out.println("UserId: " + userIdFromDB);
+	                        ServerMessage message = new ServerMessage(ServerMessage.MSG_TYPE.LOGIN, ServerMessage.STATUS.SUCCESS, username, userIdFromDB);
 	                    	clientHandler.sendServerMessage(message);
 //	                        setVisible(false);
 //	                        new SetupGameMode(client).setVisible(true);
@@ -167,16 +182,17 @@ public class GameServer {
 	                    	roomRef.child(roomId).child("players").child(player1.getUserId()).setValue(true, null);
 	                    	ServerMessage message = new ServerMessage(ServerMessage.MSG_TYPE.CREATE_ROOM, ServerMessage.STATUS.SUCCESS, player1, roomName, password, numOfPlayers);
            				    clientHandler.sendServerMessage(message);
-           				 // broadcastServerMessage(message, clientHandler);
+           				    broadcastServerMessage(message, clientHandler);
            				    System.out.println("Tao phong thanh cong");
 	                    } else {
 	                    	ServerMessage message = new ServerMessage(ServerMessage.MSG_TYPE.CREATE_ROOM, ServerMessage.STATUS.FAIL, "Username khong ton tai");
+	                    	clientHandler.sendServerMessage(message);
 	                    	broadcastServerMessage(message, clientHandler);
 	                    }
 	                }
 	            }else {
-	            	ServerMessage message = new ServerMessage(ServerMessage.MSG_TYPE.CREATE_ROOM, ServerMessage.STATUS.FAIL, "Incorrect email");
-	            	broadcastServerMessage(message, clientHandler);
+	            	ServerMessage message = new ServerMessage(ServerMessage.MSG_TYPE.CREATE_ROOM, ServerMessage.STATUS.FAIL, "Tao phong that bai");
+	            	clientHandler.sendServerMessage(message);
 	            }
 
 	        }
@@ -185,9 +201,60 @@ public class GameServer {
 	        public void onCancelled(DatabaseError error) {
 	            // Xử lý khi hủy bỏ
 	        	ServerMessage message = new ServerMessage(ServerMessage.MSG_TYPE.CREATE_ROOM, ServerMessage.STATUS.FAIL, "Connection to firebase failed");
-	        	broadcastServerMessage(message, clientHandler);	        
+	        	clientHandler.sendServerMessage(message);
 	        }
 	    });
+	}
+	
+	public static void handleJoinRoom(String userId, Room room, String password, ClientHandler clientHandler) {
+		DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("Users");
+		DatabaseReference roomRef = FirebaseDatabase.getInstance().getReference().child("Rooms");
+		System.out.println("Handle join room user id: " + userId);
+		
+		Query checkRoomDatabase = roomRef.orderByChild("name").equalTo(room.getName());
+		
+		checkRoomDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+
+			@Override
+			public void onDataChange(DataSnapshot snapshot) {
+				// TODO Auto-generated method stub
+				if (snapshot.exists()) {
+	                for (DataSnapshot roomSnapshot : snapshot.getChildren()) {
+	                    // Lặp qua mỗi người dùng phù hợp với tên người dùng
+	                    int curUserFromDB = roomSnapshot.child("curUser").getValue(Integer.class);
+	                    int numOfPlayersFromDB = roomSnapshot.child("numOfPlayers").getValue(Integer.class);
+	                    String passFromDB = roomSnapshot.child("pass").getValue(String.class);
+	                    if (curUserFromDB < numOfPlayersFromDB) {
+	                    	if (password.equals(passFromDB)) {
+	                    		roomRef.child(roomSnapshot.getKey()).child("players").child(userId).setValue(true, null);
+	                    		roomRef.child(roomSnapshot.getKey()).child("curUser").setValue(curUserFromDB + 1, null);
+	                    		 
+	                    		 ServerMessage message = new ServerMessage(ServerMessage.MSG_TYPE.JOIN_ROOM, ServerMessage.STATUS.SUCCESS, room, "Nguoi choi vao phong thanh cong");
+	            				 clientHandler.sendServerMessage(message);
+	            				 broadcastServerMessage(message, clientHandler);
+	            				 System.out.println("Vao phong thanh cong");
+	                    	} else {
+	                    		ServerMessage message = new ServerMessage(ServerMessage.MSG_TYPE.JOIN_ROOM, ServerMessage.STATUS.FAIL, "Vao phong that bai. Mat khau bi sai");
+	                    		clientHandler.sendServerMessage(message);
+	                    	}
+	                    } else {
+	                    	ServerMessage message = new ServerMessage(ServerMessage.MSG_TYPE.JOIN_ROOM, ServerMessage.STATUS.FAIL, "Vao phong that bai. Phong da day");
+	                    	clientHandler.sendServerMessage(message);
+	                    }
+	                }
+	            }else {
+	            	ServerMessage message = new ServerMessage(ServerMessage.MSG_TYPE.JOIN_ROOM, ServerMessage.STATUS.FAIL, "Khong ton tai phong choi nay tren he thong");
+	            	clientHandler.sendServerMessage(message);
+	            }
+			}
+
+			@Override
+			public void onCancelled(DatabaseError error) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		});
 	}
 	
     public void removeClient(ClientHandler client) {

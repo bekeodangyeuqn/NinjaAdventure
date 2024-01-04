@@ -187,7 +187,8 @@ public class Login extends JFrame {
 		if (serverMessage.getStatus() == ServerMessage.STATUS.SUCCESS ) {
 			System.out.println(serverMessage.getPayload());
 			clear();
-			client.setUsername(serverMessage.getPayload());
+			client.setUsername(serverMessage.getUsername());
+			client.setUserId(serverMessage.getUserId());
 			SetupGameMode setupGameModeScreen = new SetupGameMode(client);
             setupGameModeScreen.setVisible(true);
             dispose();

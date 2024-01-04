@@ -1,10 +1,11 @@
 package NinjaAdventure.game.src.environment;
 
 import java.awt.Graphics2D;
+import java.io.Serializable;
 
 import NinjaAdventure.game.src.main.GamePanel;
 
-public class EnvironmentManager {
+public class EnvironmentManager implements Serializable{
 	GamePanel gp;
 	public Lightning lightning;
 	

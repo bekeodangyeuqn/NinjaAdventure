@@ -1,5 +1,7 @@
 package NinjaAdventure.game.src.object;
 
+import java.io.Serializable;
+
 import NinjaAdventure.game.src.data.Progress;
 import NinjaAdventure.game.src.entity.NPC_BigRock;
 import NinjaAdventure.game.src.entity.NPC_Merchant;
@@ -15,7 +17,7 @@ import NinjaAdventure.game.src.tile_interactive.IT_DestructibleWall;
 import NinjaAdventure.game.src.tile_interactive.IT_DryTree;
 import NinjaAdventure.game.src.tile_interactive.IT_MetalPlate;
 
-public class AssetSetter {
+public class AssetSetter implements Serializable{
 	GamePanel gp;
 	
 	public AssetSetter(GamePanel gp) {

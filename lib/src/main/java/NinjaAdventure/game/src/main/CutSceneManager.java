@@ -3,13 +3,14 @@ package NinjaAdventure.game.src.main;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.io.Serializable;
 
 import NinjaAdventure.game.src.entity.PlayerDummy;
 import NinjaAdventure.game.src.monster.MON_SkeletonLord;
 import NinjaAdventure.game.src.object.OBJ_BlueHeart;
 import NinjaAdventure.game.src.object.OBJ_Door_Iron;
 
-public class CutSceneManager {
+public class CutSceneManager implements Serializable{
 	GamePanel gp;
 	Graphics2D g2;
 	public int sceneNum;

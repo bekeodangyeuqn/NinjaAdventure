@@ -2,8 +2,12 @@ package NinjaAdventure.socket;
 
 import java.io.Serializable;
 
+import NinjaAdventure.socket.ServerMessage.MSG_TYPE;
+import NinjaAdventure.socket.ServerMessage.STATUS;
+import firebase.model.Room;
+
 public class ClientMessage implements Serializable{
-	// private static final long serialVersionUID = 5378198462073827524L;
+	// private static final long serialVersionUID = 1L;
 
 	enum MSG_TYPE {
 		LOGIN,
@@ -11,6 +15,7 @@ public class ClientMessage implements Serializable{
 		FORGOT_PASSWORD,
 		CREATE_ROOM,
 		JOIN_ROOM,
+		JOIN_GAME,
 		CHARMOVE,
 		PAUSE
 	}
@@ -24,8 +29,19 @@ public class ClientMessage implements Serializable{
 	private String fullName;
 	private int numOfPlayers;
 	private String roomname;
+	private Room room;
+	private String userId;
 	
 	
+	
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
 	public MSG_TYPE getMsg_type() {
 		return msg_type;
 	}
@@ -99,6 +115,16 @@ public class ClientMessage implements Serializable{
 	public void setRoomname(String roomname) {
 		this.roomname = roomname;
 	}
+	
+	
+
+	public Room getRoom() {
+		return room;
+	}
+
+	public void setRoom(Room room) {
+		this.room = room;
+	}
 
 	// Constructor for the SIGNUP message type
     public ClientMessage(MSG_TYPE message_type, String username, String password, String fullName, String email) {
@@ -109,7 +135,7 @@ public class ClientMessage implements Serializable{
         this.fullName = fullName;
     }
     
- // Constructor for the JOIN_ROOM, CHARMOVE message type
+ // Constructor for the CHARMOVE message type
     public ClientMessage(MSG_TYPE message_type, String username, String payload) {
         this.msg_type = message_type;
         this.username = username;
@@ -136,4 +162,17 @@ public class ClientMessage implements Serializable{
         this.username = username;
     }
 
+// Constructor for JOIN_ROOM
+    public ClientMessage(MSG_TYPE message_type, String userId, Room room, String password) {
+    	this.msg_type = message_type;
+    	this.userId = userId;
+    	this.passwordRoom = password;
+    	this.room = room;
+    }
+
+// Constructor for JOIN_GAME
+    public ClientMessage(MSG_TYPE msg_type, String username) {
+		this.msg_type = msg_type;
+		this.username = username;
+	}
 }

@@ -8,6 +8,11 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 
+import NinjaAdventure.game.src.entity.PlayerMP;
+import NinjaAdventure.game.src.main.GamePanel;
+import NinjaAdventure.game.src.main.KeyHandler;
+import NinjaAdventure.game.src.main.Main;
+
 public class ClientHandler implements Runnable{
 	
 	private Socket socket;
@@ -50,6 +55,7 @@ public class ClientHandler implements Runnable{
 		while (socket.isConnected()) {
 			try {
 				messageFromClient = (ClientMessage) inputStream.readObject();
+				System.out.println("Recived client message: " + messageFromClient.getMsg_type());
 				handleClientMessage(messageFromClient);
 				server.broadcastMessage(messageFromClient, this);
 			} catch (IOException | ClassNotFoundException e) {
@@ -61,6 +67,7 @@ public class ClientHandler implements Runnable{
 	}
 	
 	public void handleClientMessage(ClientMessage clientMessage) {
+		System.out.println("Client message type: " + clientMessage.getUserId());
         switch (clientMessage.getMsg_type()) {
             case LOGIN:
             	// Handle login message
@@ -80,12 +87,14 @@ public class ClientHandler implements Runnable{
             case CREATE_ROOM:
                 // Handle create room message
             	System.out.println("Handling create room...");
-//            	createRoomScreen.createNewRoom(this.getUsername(), clientMessage.getRoomname(), clientMessage.getNumOfPlayers(), clientMessage.getPasswordRoom());            	
             	GameServer.handleCreateRoom(clientMessage.getUsername(), clientMessage.getRoomname(), clientMessage.getPasswordRoom(), clientMessage.getNumOfPlayers(), this);
             	System.out.println("Create room sucessfully");
                 break;
             case JOIN_ROOM:
                 // Handle join room message
+            	System.out.println("Handling join room...");
+            	GameServer.handleJoinRoom(clientMessage.getUserId(), clientMessage.getRoom(), clientMessage.getPasswordRoom(), this);
+            	System.out.println("Join room sucessfully");
                 break;
             case CHARMOVE:
             	// Handle char move message
@@ -93,6 +102,15 @@ public class ClientHandler implements Runnable{
             case PAUSE:
             	// Handle pause game message
             // Add more cases for other message types as needed
+			case JOIN_GAME:
+				System.out.println("Handling join game...");
+				ServerMessage serverMessage = new ServerMessage(ServerMessage.MSG_TYPE.JOIN_GAME, ServerMessage.STATUS.SUCCESS, clientMessage.getUserId(), clientMessage.getUsername(), server);
+				this.sendServerMessage(serverMessage);
+				
+				System.out.println("Join game sucessfully");
+				break;
+			default:
+				break;
         }
     }
 	
@@ -105,7 +123,7 @@ public class ClientHandler implements Runnable{
     }
 	
 	public void sendServerMessage(ServerMessage serverMessage) {
-		System.out.println("Server payload:" + serverMessage.getPayload());
+		System.out.println("Server payload user id:" + serverMessage.getUserId());
 		try {
             outputStream.writeObject(serverMessage);
         } catch (IOException e) {

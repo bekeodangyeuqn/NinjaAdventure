@@ -3,6 +3,7 @@ package firebase.views;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
+import NinjaAdventure.socket.MultiScreenClient;
 import firebase.model.Room;
 import firebase.model.User;
 
@@ -22,7 +23,7 @@ public class RoomWaiting extends JFrame {
     private JButton startButton;
     private Room room;
     private RoomListPanel roomListPanel;
-    public RoomWaiting(Room room) {
+    public RoomWaiting(Room room, MultiScreenClient client) {
     /*	this.room = room;
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(100, 100, 450, 300);
@@ -152,7 +153,7 @@ public class RoomWaiting extends JFrame {
     	cancelButton.addActionListener(new ActionListener() {
     	    @Override
     	    public void actionPerformed(ActionEvent e) {
-    	       roomListPanel.deleteRoom(room);
+    	       roomListPanel.deleteRoom(room, client);
     	       dispose();
     	    }
     	});
@@ -215,7 +216,7 @@ public class RoomWaiting extends JFrame {
 
                         if (option == JOptionPane.YES_OPTION) {
                             // Xóa người chơi khỏi danh sách
-                            removePlayer(selectedPlayer1);
+                            removePlayer(selectedPlayer1, client);
                         }
                     }
                 }
@@ -237,15 +238,15 @@ public class RoomWaiting extends JFrame {
     }
 
     // Phương thức để xóa người chơi khỏi danh sách
-    private void removePlayer(String player) {
+    private void removePlayer(String player, MultiScreenClient client) {
     	System.out.println("Ten nguoi choi can xoa:"+ player);
-    	roomListPanel.deleteRoom(room);
+    	roomListPanel.deleteRoom(room, client);
     	room.removeAplayer(player);
     	
     	for(User s: room.getPlayers()) {
     		System.out.println("nguoi choi: "+ s.getUsername());
     	}
-    	roomListPanel.addRoom(room);
+    	roomListPanel.addRoom(room, client);
     	updatePlayerList();    
     }
 

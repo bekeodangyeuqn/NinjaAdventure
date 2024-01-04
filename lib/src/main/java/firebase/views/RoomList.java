@@ -25,14 +25,14 @@ import firebase.views.CreateRoom.CreateRoomListener;
 public class RoomList extends JFrame  {
 
 	private JPanel contentPane;
-	private RoomListPanel roomListPanel;
+	public RoomListPanel roomListPanel;
 
 	public RoomList(MultiScreenClient client) {
 		 setTitle("Room List App");
 	        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	        setPreferredSize(new Dimension(400, 600));
 
-	        roomListPanel = new RoomListPanel();
+	        roomListPanel = new RoomListPanel(client);
 
 	        JScrollPane scrollPane = new JScrollPane(roomListPanel);
 	        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
@@ -62,17 +62,17 @@ public class RoomList extends JFrame  {
 	}
 
 	
-	public void onRoomCreated(User user, String roomName, int numOfPlayers, String pass) {
-		 Room newRoom = new Room(roomName, numOfPlayers);
-		 newRoom.setPass(pass);
-		 User player1 = user;
-		 
-		 List<User> list= new ArrayList<User>();
-		 list.add(player1);
-		 newRoom.setCurUser(list.size());
-		 newRoom.setPlayers(list);
-	        roomListPanel.addRoom(newRoom);
-	}
+//	public void onRoomCreated(User user, String roomName, int numOfPlayers, String pass) {
+//		 Room newRoom = new Room(roomName, numOfPlayers);
+//		 newRoom.setPass(pass);
+//		 User player1 = user;
+//		 
+//		 List<User> list= new ArrayList<User>();
+//		 list.add(player1);
+//		 newRoom.setCurUser(list.size());
+//		 newRoom.setPlayers(list);
+//	        roomListPanel.addRoom(newRoom);
+//	}
 
 	public void setRoomListPanel(RoomListPanel roomListPanel) {
 		this.roomListPanel = roomListPanel;

@@ -194,6 +194,7 @@ public class CreateRoom extends JFrame {
 	        }
 
 	        // Thông báo cho lớp nghe biết rằng có phòng mới được tạo
+			setVisible(false);
 	       new RoomList(client).setVisible(true);
 		} else {
 			JOptionPane.showMessageDialog(null, "<html><b style=\"color:red\">" + serverMessage.getPayload()  + "</b>  </html>", "Message", JOptionPane.ERROR_MESSAGE);

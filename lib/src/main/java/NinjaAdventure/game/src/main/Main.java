@@ -2,22 +2,37 @@ package NinjaAdventure.game.src.main;
 
 import javax.swing.*;
 
+import NinjaAdventure.game.src.entity.Player;
+import NinjaAdventure.game.src.entity.PlayerMP;
+import NinjaAdventure.socket.GameServer;
+import NinjaAdventure.socket.InGameClient;
+import NinjaAdventure.socket.InGameServer;
+import NinjaAdventure.socket.MultiScreenClient;
+import NinjaAdventure.socket.packet.Packet00JoinGame;
+
 public class Main {
 	public static JFrame window;
+	public Player player;
 	
-	public static void initGame() {
+	public static void initGame(MultiScreenClient client) {
 		window = new JFrame();
 		
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setResizable(false);
 		window.setTitle("PROJECT LTM");
 		new Main().setIcon();
+	
+		GamePanel game = new GamePanel(client.getUsername());
+		KeyHandler keyH = new KeyHandler(game);
+		Player player = new PlayerMP(game, keyH, client.getUsername(),
+	                null, -1);
+		// game.entityList.add(player);
+		game.player = player;
 		
-		GamePanel gamePanel = new GamePanel();
-		window.add(gamePanel);
+		window.add(game);
 		
-		gamePanel.config.loadConfig();
-		if (gamePanel.fullScreenOn) {
+		game.config.loadConfig();
+		if (game.fullScreenOn) {
 			window.setUndecorated(true);
 		}
 		
@@ -28,8 +43,13 @@ public class Main {
 		window.setLocationRelativeTo(null);
 		window.setVisible(true);
 		
-		gamePanel.setupGame();
-		gamePanel.startGameThread();
+		game.setupGame();
+		game.startGameThread();
+		
+//		game.init();
+//		GamePanel game = new GamePanel(client.getUsername());
+//		game.setupGame();
+//		game.startGameThread();
 	}
 	
 	public void setIcon() {

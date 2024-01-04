@@ -1,5 +1,6 @@
 package NinjaAdventure.game.src.main;
 
+import java.io.Serializable;
 import java.net.URL;
 
 import javax.sound.sampled.AudioInputStream;

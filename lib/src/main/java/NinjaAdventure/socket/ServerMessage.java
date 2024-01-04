@@ -2,10 +2,11 @@ package NinjaAdventure.socket;
 
 import java.io.Serializable;
 
+import firebase.model.Room;
 import firebase.model.User;
 
 public class ServerMessage implements Serializable{
-	// private static final long serialVersionUID = -5886495596240661838L;
+	// private static final long serialVersionUID = 1L;
 
 	public enum MSG_TYPE {
 		LOGIN,
@@ -13,6 +14,7 @@ public class ServerMessage implements Serializable{
 		FORGOT_PASSWORD,
 		CREATE_ROOM,
 		JOIN_ROOM,
+		JOIN_GAME,
 		CHARMOVE,
 		PAUSE
 	}
@@ -34,9 +36,36 @@ public class ServerMessage implements Serializable{
 	private int numOfPlayers;
 	private String roomname;
 	private User player;
+	private Room room;
+	private String userId;
+	private GameServer server;
 	
 	
 	
+	public GameServer getServer() {
+		return server;
+	}
+
+	public void setServer(GameServer server) {
+		this.server = server;
+	}
+
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
+	public Room getRoom() {
+		return room;
+	}
+
+	public void setRoom(Room room) {
+		this.room = room;
+	}
+
 	public User getPlayer() {
 		return player;
 	}
@@ -137,11 +166,28 @@ public class ServerMessage implements Serializable{
 		this.roomname = roomname;
 	}
 
+	public ServerMessage(MSG_TYPE msg_type, STATUS status, String userId, String username, GameServer server) {
+		super();
+		this.msg_type = msg_type;
+		this.status = status;
+		this.userId = userId;
+		this.username = username;
+		this.server = server;
+	}
+	
 	public ServerMessage(MSG_TYPE msg_type, STATUS status, String payload) {
 		super();
 		this.msg_type = msg_type;
 		this.status = status;
 		this.payload = payload;
+	}
+	
+	public ServerMessage(MSG_TYPE msg_type, STATUS status, String payload1, String payload2) {
+		super();
+		this.msg_type = msg_type;
+		this.status = status;
+		this.username = payload1;
+		this.userId = payload2;
 	}
 	
 	// Handle for create room response
@@ -156,4 +202,14 @@ public class ServerMessage implements Serializable{
 		this.numOfPlayers = numOfPlayers;
 		// TODO Auto-generated constructor stub
 	}
+	
+	// Handle for join room response
+	public ServerMessage(MSG_TYPE msg_type, STATUS status, Room room, String payload) {
+		super();
+		this.msg_type = msg_type;
+		this.status = status;
+		this.room = room;
+		this.payload = payload;
+	}
+	
 }

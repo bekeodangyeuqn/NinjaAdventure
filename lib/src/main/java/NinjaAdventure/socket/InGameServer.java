@@ -13,6 +13,7 @@ import NinjaAdventure.game.src.main.GamePanel;
 import NinjaAdventure.socket.packet.Packet;
 import NinjaAdventure.socket.packet.Packet.PacketTypes;
 import NinjaAdventure.socket.packet.Packet00JoinGame;
+import NinjaAdventure.socket.packet.Packet01Disconnect;
 import NinjaAdventure.socket.packet.Packet02Move;
 
 public class InGameServer extends Thread {
@@ -60,17 +61,17 @@ public class InGameServer extends Thread {
             		((Packet00JoinGame) packet).getY());
             this.addConnection(player, (Packet00JoinGame) packet);
             break;
-//        case QUIT_GAME:
-//            packet = new Packet01Disconnect(data);
-//            System.out.println("[" + address.getHostAddress() + ":" + port + "] "
-//                    + ((Packet01Disconnect) packet).getUsername() + " has left...");
-//            this.removeConnection((Packet01Disconnect) packet);
-//            break;
-//        	case MOVE:
-//	            packet = new Packet02Move(data);
+        case DISCONNECT:
+            packet = new Packet01Disconnect(data);
+            System.out.println("[" + address.getHostAddress() + ":" + port + "] "
+                    + ((Packet01Disconnect) packet).getUsername() + " has left...");
+            this.removeConnection((Packet01Disconnect) packet);
+            break;
+        	case MOVE:
+	            packet = new Packet02Move(data);
 //	            System.out.println(((Packet02Move) packet).getUsername() + " has moved to "
-//	                    + ((Packet02Move) packet).getX() + ", " + ((Packet02Move) packet).getY());
-//	            this.handleMove(((Packet02Move) packet));
+//	                    + ((Packet02Move) packet).getX() + ", " + ((Packet02Move) packet).getY() + " and pressed " + ((Packet02Move) packet).getOtherKeyPressed());
+	            this.handleMove(((Packet02Move) packet));
         }
     }
     
@@ -104,10 +105,10 @@ public class InGameServer extends Thread {
         }
     }
 
-//    public void removeConnection(Packet01Disconnect packet) {
-//        this.connectedPlayers.remove(getPlayerMPIndex(packet.getUsername()));
-//        packet.writeData(this);
-//    }
+    public void removeConnection(Packet01Disconnect packet) {
+        this.connectedPlayers.remove(getPlayerMPIndex(packet.getUsername()));
+        packet.writeData(this);
+    }
 
     public PlayerMP getPlayerMP(String username) {
         for (PlayerMP player : this.connectedPlayers) {
@@ -144,13 +145,14 @@ public class InGameServer extends Thread {
         }
     }
 
-//    private void handleMove(Packet02Move packet) {
-//        if (getPlayerMP(packet.getUsername()) != null) {
-//            int index = getPlayerMPIndex(packet.getUsername());
-//            this.connectedPlayers.get(index).worldX = packet.getX();
-//            this.connectedPlayers.get(index).worldY = packet.getY();
-//            packet.writeData(this);
-//        }
-//    }
+    private void handleMove(Packet02Move packet) {
+        if (getPlayerMP(packet.getUsername()) != null) {
+            int index = getPlayerMPIndex(packet.getUsername());
+            this.connectedPlayers.get(index).worldX = packet.getX();
+            this.connectedPlayers.get(index).worldY = packet.getY();
+            this.connectedPlayers.get(index).otherKeyPressed = packet.getOtherKeyPressed();
+            packet.writeData(this);
+        }
+    }
 
 }

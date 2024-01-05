@@ -12,6 +12,7 @@ import NinjaAdventure.game.src.main.GamePanel;
 import NinjaAdventure.socket.packet.Packet;
 import NinjaAdventure.socket.packet.Packet.PacketTypes;
 import NinjaAdventure.socket.packet.Packet00JoinGame;
+import NinjaAdventure.socket.packet.Packet01Disconnect;
 import NinjaAdventure.socket.packet.Packet02Move;
 
 public class InGameClient extends Thread {
@@ -61,14 +62,14 @@ public class InGameClient extends Thread {
             handleLogin((Packet00JoinGame) packet, address, port);
             break;
         case DISCONNECT:
-//            packet = new Packet01Disconnect(data);
-//            System.out.println("[" + address.getHostAddress() + ":" + port + "] "
-//                    + ((Packet01Disconnect) packet).getUsername() + " has left the world...");
-//            game.level.removePlayerMP(((Packet01Disconnect) packet).getUsername());
+            packet = new Packet01Disconnect(data);
+            System.out.println("[" + address.getHostAddress() + ":" + port + "] "
+                    + ((Packet01Disconnect) packet).getUsername() + " has left the world...");
+            game.removePlayerMP(((Packet01Disconnect) packet).getUsername());
             break;
-//        case MOVE:
-//            packet = new Packet02Move(data);
-//            handleMove((Packet02Move) packet);
+        case MOVE:
+            packet = new Packet02Move(data);
+            handleMove((Packet02Move) packet);
         }
     }
 
@@ -88,7 +89,7 @@ public class InGameClient extends Thread {
         game.addEntity(player);
     }
 
-//    private void handleMove(Packet02Move packet) {
-//        this.game.movePlayer(packet.getUsername(), packet.getX(), packet.getY());
-//    }
+    private void handleMove(Packet02Move packet) {
+        this.game.movePlayer(packet.getUsername(), packet.getX(), packet.getY(), packet.getOtherKeyPressed());
+    }
 }

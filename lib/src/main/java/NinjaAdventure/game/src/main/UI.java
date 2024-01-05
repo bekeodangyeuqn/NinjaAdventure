@@ -127,15 +127,20 @@ public class UI {
 	}
 	
 	public void drawPlayerName() {
-		int y = gp.tileSize;
 		g2.setColor(Color.white);
 		g2.setFont(g2.getFont().deriveFont(32F));
-//		for (Player p : gp.players) {
-//			String text = p.getUsername();
-//			int x = getXForCenteredText(text);
-//			g2.drawString(text, x, y);
-//			y += gp.tileSize;
-//		}
+		for (int i = 0; i < gp.players[1].length; ++i) {
+			if (gp.players[gp.currentMap][i] != null) {
+				Player pl = (Player) gp.players[gp.currentMap][i];
+				if (pl.getKeyH() != null) {
+					g2.drawString(pl.getUsername(), pl.getScreenX(), gp.tileSize * 5);
+				} else if (pl.inCamera() == true) {
+					int x = pl.worldX - gp.player.worldX + gp.player.screenX;
+					int y = pl.worldY - gp.player.worldY + gp.player.screenY;
+					g2.drawString(pl.getUsername(), x, y);
+				}
+			}	
+		}
 	}
 	
 	public void draw(Graphics2D g2) {

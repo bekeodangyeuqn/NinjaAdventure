@@ -128,8 +128,9 @@ public class GamePanel extends JPanel implements Runnable, Serializable {
 	public MultiScreenClient client;
 	public InGameClient socketClient;
 	public InGameServer socketServer;
-	public GamePanel game;
+	public static GamePanel game;
 	public JFrame window;
+	public WindowHandler windowHandler;
 //	public static int playersNum = 0;
 
 	public GamePanel() {
@@ -224,18 +225,13 @@ public class GamePanel extends JPanel implements Runnable, Serializable {
 	}
 
 	public void init() {
-		System.out.println("Init_game");
+		game = this;
 		keyH = new KeyHandler(this);
-		int playersNum;
-		if (socketServer != null)
-			playersNum = 0;
-		else
-			playersNum = 1;
-		player = new PlayerMP(this, this.keyH, this.username,
-				null, -1, tileSize * (23 + playersNum), tileSize * 21);
+		windowHandler = new WindowHandler(this);
 		
-		System.out.println("Init X: " + tileSize * (23 + playersNum) + ", Init Y: " + tileSize * 21);
-		System.out.println(playersNum);
+		player = new PlayerMP(this, this.keyH, this.username,
+				null, -1, tileSize * (23), tileSize * 21);
+		
 		this.addEntity(player);
 		Packet00JoinGame loginPacket = new Packet00JoinGame(this.username, player.worldX, player.worldY);
 		if (socketServer != null) {
@@ -247,6 +243,7 @@ public class GamePanel extends JPanel implements Runnable, Serializable {
 	}
 
 	public synchronized void startGameThread() {
+		// Tạo quái 
 		if (JOptionPane.showConfirmDialog(this, "Do you want to run the server") == 0) {
 			socketServer = new InGameServer(this);
 			socketServer.start();
@@ -302,10 +299,7 @@ public class GamePanel extends JPanel implements Runnable, Serializable {
 			for (int i = 0; i < players[1].length; ++i) {
 				if (players[currentMap][i] != null) {
 					Player pl = (Player) players[currentMap][i];
-					System.out.println("Player update info: " + pl.getUsername() + " " + pl.worldX + " " + pl.worldY);
-//					if (pl.getKeyH() == null) {
-						pl.update();
-//					}
+					pl.update();
 				}	
 			}
 //			player.update();
@@ -460,7 +454,6 @@ public class GamePanel extends JPanel implements Runnable, Serializable {
 				if  (entityList.get(i) instanceof Player) {
 					Player pl = (Player) entityList.get(i);
 					if (pl.getKeyH() == null) {
-						System.out.println("I'm here");
 						pl.draw2(g2);
 						continue;
 					}
@@ -571,22 +564,37 @@ public class GamePanel extends JPanel implements Runnable, Serializable {
 		}
 	}
 	
-//	private int getPlayerMPIndex(String username) {
-//        int index = 0;
-//        for (Player p : players) {
-//            if (p instanceof PlayerMP && ((PlayerMP) p).getUsername().equals(username)) {
-//                break;
-//            }
-//            index++;
-//        }
-//        return index;
-//    }
+	private int getPlayerMPIndex(String username) {
+        int index = 0;
+        for (int i = 0; i < players[1].length; ++i) {
+        	if (players[currentMap][i] != null) {
+        		Player pl = (Player) players[currentMap][i];
+        		if (pl instanceof PlayerMP && ((PlayerMP) pl).getUsername().equals(username)) {
+                    break;
+                }
+                index++;
+        	}
+        }
+        return index;
+    }
 
-//    public void movePlayer(String username, int x, int y) {
-//        int index = getPlayerMPIndex(username);
-//        this.players.get(index).worldX = x;
-//        this.players.get(index).worldY = y;
-//    }
+    public void movePlayer(String username, int x, int y, int otherKeyPressed) {
+//    	System.out.println("Other key pressed: " + otherKeyPressed + " " + username);
+        int index = getPlayerMPIndex(username);
+        players[currentMap][index].worldX = x;
+        players[currentMap][index].worldY = y;
+        players[currentMap][index].otherKeyPressed = otherKeyPressed;
+    }
+    
+    public void removePlayerMP(String username) {
+        for (int i = 0; i < players[1].length; ++i) {
+        	Player pl = (Player) players[currentMap][i];
+            if (pl instanceof PlayerMP && ((PlayerMP) pl).getUsername().equals(username)) {
+            	players[currentMap][i] = null;
+                break;
+            }
+        }
+    }
 
 	public static void main(String[] args) {
 		new GamePanel().startGameThread();

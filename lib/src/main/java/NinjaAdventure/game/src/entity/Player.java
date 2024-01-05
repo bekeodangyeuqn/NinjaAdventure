@@ -13,6 +13,7 @@ import NinjaAdventure.game.src.object.OBJ_Key;
 import NinjaAdventure.game.src.object.OBJ_Lantern;
 import NinjaAdventure.game.src.object.OBJ_Shield_Wood;
 import NinjaAdventure.game.src.object.OBJ_Sword_Normal;
+import NinjaAdventure.socket.packet.Packet01Disconnect;
 import NinjaAdventure.socket.packet.Packet02Move;
 
 public class Player extends Entity {
@@ -94,6 +95,30 @@ public class Player extends Entity {
         worldY = y;
 	}
 	
+	public Player(GamePanel game, KeyHandler input, String username, int x, int y, int otherKeyPressed)
+	{
+		super(game, "Player");
+        this.keyH = input;
+        this.username = username;
+		
+		screenX = gp.screenWidth / 2 - (gp.tileSize / 2);
+		screenY = gp.screenHeight / 2 - (gp.tileSize / 2);
+		
+		solidArea = new Rectangle();
+		solidArea.x = 8;
+		solidArea.y = 16;
+		solidAreaDefaultX = solidArea.x;
+		solidAreaDefaultY = solidArea.y;
+		solidArea.width = 32;
+		solidArea.height = 32;
+        
+        setDefaultValues();
+        
+        worldX = x;
+        worldY = y;
+        super.otherKeyPressed = otherKeyPressed;
+	}
+	
 	public String getUserId() {
 		return userId;
 	}
@@ -124,89 +149,101 @@ public class Player extends Entity {
 			int tempScreenY = super.getScreenY();
 
 			switch (direction) {
-				case "up":
-					if (attacking == false) {
-						if (spriteNum == 1) {
-							image = up1;
-						}
-						if (spriteNum == 2) {
-							image = up2;
-						}
-					} else {
-						tempScreenY = getScreenY() - up1.getHeight();
-						if (spriteNum == 1) {
-							image = attackUp1;
-						}
-						if (spriteNum == 2) {
-							image = attackUp2;
-						}
+			case "up":
+				if (attacking == false) {
+					if (spriteNum == 1) {
+						image = up1;
 					}
-					// if (spriteNum == 0) {
-					// image = up0;
-					// }
-					break;
-				case "down":
-					// if (spriteNum == 0) {
-					// image = down0;
-					// }
-					if (attacking == false) {
-						if (spriteNum == 1) {
-							image = down1;
-						}
-						if (spriteNum == 2) {
-							image = down2;
-						}
-					} else {
-						if (spriteNum == 1) {
-							image = attackDown1;
-						}
-						if (spriteNum == 2) {
-							image = attackDown2;
-						}
+					if (spriteNum == 2) {
+						image = up2;
 					}
-					break;
-				case "left":
-					// if (spriteNum == 0) {
-					// image = left0;
-					// }
-					if (attacking == false) {
-						if (spriteNum == 1) {
-							image = left1;
-						}
-						if (spriteNum == 2) {
-							image = left2;
-						}
-					} else {
-						tempScreenX = getScreenX() - left1.getWidth();
-						if (spriteNum == 1) {
-							image = attackLeft1;
-						}
-						if (spriteNum == 2) {
-							image = attackLeft2;
-						}
+				} else {
+					tempScreenY = super.getScreenY() - gp.tileSize;
+					if (spriteNum == 1) {
+						image = attackUp1;
 					}
-					break;
-				case "right":
-					// if (spriteNum == 0) {
-					// image = right0;
-					// }
-					if (attacking == false) {
-						if (spriteNum == 1) {
-							image = right1;
-						}
-						if (spriteNum == 2) {
-							image = right2;
-						}
-					} else {
-						if (spriteNum == 1) {
-							image = attackRight1;
-						}
-						if (spriteNum == 2) {
-							image = attackRight2;
-						}
+					if (spriteNum == 2) {
+						image = attackUp2;
 					}
-					break;
-			}
+				}
+				if (guarding == true) {
+					image = guardUp;
+				}
+//				if (spriteNum == 0) {
+//					image = up0;
+//				}
+				break;
+			case "down":
+//				if (spriteNum == 0) {
+//					image = down0;
+//				}
+				if (attacking == false) {
+					if (spriteNum == 1) {
+						image = down1;
+					}
+					if (spriteNum == 2) {
+						image = down2;
+					}
+				} else {
+					if (spriteNum == 1) {
+						image = attackDown1;
+					}
+					if (spriteNum == 2) {
+						image = attackDown2;
+					}
+				}
+				if (guarding == true) {
+					image = guardDown;
+				}
+				break;
+			case "left":
+//				if (spriteNum == 0) {
+//					image = left0;
+//				}
+				if (attacking == false) {
+					if (spriteNum == 1) {
+						image = left1;
+					}
+					if (spriteNum == 2) {
+						image = left2;
+					}
+				} else {
+					tempScreenX = super.getScreenX() - gp.tileSize;
+					if (spriteNum == 1) {
+						image = attackLeft1;
+					}
+					if (spriteNum == 2) {
+						image = attackLeft2;
+					}
+				}
+				if (guarding == true) {
+					image = guardLeft;
+				}
+				break;
+			case "right":
+//				if (spriteNum == 0) {
+//					image = right0;
+//				}
+				if (attacking == false) {
+					if (spriteNum == 1) {
+						image = right1;
+					}
+					if (spriteNum == 2) {
+						image = right2;
+					}
+				} else {
+					if (spriteNum == 1) {
+						image = attackRight1;
+					}
+					if (spriteNum == 2) {
+						image = attackRight2;
+					}
+				}
+				if (guarding == true) {
+					image = guardRight;
+				}
+				break;
+		}
 
 			// Monster health bar
 			// if (type == 2 && hpBarOn == true) {
@@ -258,8 +295,6 @@ public class Player extends Entity {
 		this.gp = gp;
 	}
 	
-	
-
 	public int getScreenX() {
 		return screenX;
 	}
@@ -459,7 +494,22 @@ public class Player extends Entity {
 	}
 	
 	public void update() {
+		int setKeyPress;
+		
 		if (keyH != null) {
+			if (keyH.upPressed) setKeyPress = 0;
+			else if (keyH.downPressed) setKeyPress = 1;
+			else if (keyH.leftPressed) setKeyPress = 2;
+			else if (keyH.rightPressed) setKeyPress = 3;
+			else if (keyH.enterPressed) setKeyPress = 4;
+			else if (keyH.shotKeyPressed) setKeyPress = 5;
+			else if (keyH.spacePressed) setKeyPress = 6;
+			else if (keyH.godModeOn) setKeyPress = 7;
+			else setKeyPress = -1;
+		} else {
+			setKeyPress = -1;
+		}
+		
 		if (knockBack) {
 //			Check tile collision
 			collisionOn = false;
@@ -506,28 +556,33 @@ public class Player extends Entity {
 				knockBack = false;
 				speed = defaultSpeed;
 			}
-		} else if (attacking == true) {
+		} 
+		else if (attacking == true) {
 			attacking();
 		}
-			
-			if (keyH.spacePressed == true) {
-				guarding = true;
-				guardCounter++;
-			} else if (
-					keyH.upPressed == true || 
-					keyH.downPressed == true || 
-					keyH.leftPressed == true || 
-					keyH.rightPressed == true ||
-					keyH.enterPressed == true)
+		else if (((keyH != null) && (keyH.spacePressed)) || (otherKeyPressed == 6)) {
+			guarding = true;
+			guardCounter++;
+		} else if (
+			(
+				(keyH != null) &&
+			(
+							keyH.upPressed  || 
+							keyH.downPressed  || 
+							keyH.leftPressed  || 
+							keyH.rightPressed  ||
+							keyH.enterPressed
+						)
+					) || (otherKeyPressed <= 4 && otherKeyPressed >= 0)
+					)
 			{
-				System.out.println("Player pressed: " + this.getUsername());
-				if (keyH.upPressed == true) {
+				if (((keyH != null) && keyH.upPressed) || (otherKeyPressed == 0)) {
 					direction = "up";
-				} else if (keyH.downPressed == true) {
+				} else if (((keyH != null) && keyH.downPressed) || (otherKeyPressed == 1)) {
 					direction = "down";
-				} else if (keyH.leftPressed == true) {
+				} else if (((keyH != null) && keyH.leftPressed) || (otherKeyPressed == 2)) {
 					direction = "left";
-				} else if (keyH.rightPressed == true) {
+				} else if (((keyH != null) && keyH.rightPressed) || (otherKeyPressed == 3)) {
 					direction = "right";
 				}
 				
@@ -554,24 +609,26 @@ public class Player extends Entity {
 				gp.eHandler.checkEvent();
 				
 //				IF COLLISION is false, player can move
-				if (collisionOn == false && keyH.enterPressed == false) {
-					switch (direction) {
-					case "up":
-						worldY -= speed;
-						break;
-					case "down":
-						worldY += speed;
-						break;
-					case "left":
-						worldX -= speed;
-						break;
-					case "right":
-						worldX += speed;
-						break;
+				if ((collisionOn == false) && (((keyH != null) && (keyH.enterPressed == false) ) || (otherKeyPressed != 4) )) {
+					if (keyH != null) {
+						switch (direction) {
+						case "up":
+							worldY -= speed;
+							break;
+						case "down":
+							worldY += speed;
+							break;
+						case "left":
+							worldX -= speed;
+							break;
+						case "right":
+							worldX += speed;
+							break;
+						}
 					}
 				}
 				
-				if (keyH.enterPressed == true && attackCanceled == false) {
+				if (( ( (keyH != null) && (keyH.enterPressed) ) || (otherKeyPressed == 4) ) && (attackCanceled == false)) {
 					gp.playSE(7);
 					attacking = true;
 					spriteCounter = 0;
@@ -579,6 +636,7 @@ public class Player extends Entity {
 				
 				attackCanceled = false;
 				gp.keyH.enterPressed = false;
+				otherKeyPressed = -1;
 				guarding = false;
 				guardCounter = 0;
 				
@@ -608,7 +666,8 @@ public class Player extends Entity {
 				guardCounter = 0;
 			}
 			
-			if (gp.keyH.shotKeyPressed == true && 
+			if (	
+					(((keyH != null) && (gp.keyH.shotKeyPressed)) || (otherKeyPressed == 5)) && 
 					projectile.alive == false && 
 					shotAvailableCounter == 72 && 
 					projectile.haveResource(this)) 
@@ -631,12 +690,15 @@ public class Player extends Entity {
 				shotAvailableCounter = 0;
 			}
 			
-			if (keyH.godModeOn == false) {
+			if (((keyH != null) && (keyH.godModeOn == false)) || (otherKeyPressed == 7) ) {
 				if (life <= 0) {
+					Packet01Disconnect packet = new Packet01Disconnect(this.gp.player.getUsername());
+			        packet.writeData(this.gp.socketClient);
 					gp.gameState = gp.gameOverState;
 					gp.ui.commandNum = -1;
 //					gp.stopMusic();
-					gp.playSE(12);
+//					gp.playSE(12);
+//			        System.exit(0);
 				}
 			}
 			else {
@@ -671,9 +733,11 @@ public class Player extends Entity {
 		if (mana > maxMana) {
 			mana = maxMana;
 		}
-	}
-//		Packet02Move packet = new Packet02Move(this.getUsername(), this.worldX, this.worldY);
-//        packet.writeData(GamePanel.game.socketClient);
+		
+//		System.out.println("SetKeyPress: " + setKeyPress + " " + this.getUsername());
+//		System.out.println("OtherKeyPress: " + otherKeyPressed + " " + this.getUsername());
+		Packet02Move packet = new Packet02Move(this.getUsername(), this.worldX, this.worldY, setKeyPress);
+        packet.writeData(GamePanel.game.socketClient);
 	}
 	
 	public void damageProjectile(int i) {
@@ -723,10 +787,10 @@ public class Player extends Entity {
 				
 				if (canObtainItem(gp.obj[gp.currentMap][i])) {
 					gp.playSE(1);
-					text = "You picked up " + gp.obj[gp.currentMap][i].name + "!";
+					text = this.getUsername() + " picked up " + gp.obj[gp.currentMap][i].name + "!";
 				}
 				else {
-					text = "Your inventory is full!";
+					text = this.getUsername() + "'s" + " inventory is full!";
 				}
 				
 				gp.ui.addMessage(text);

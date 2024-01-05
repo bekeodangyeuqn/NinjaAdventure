@@ -36,7 +36,7 @@ public class Entity {
 	public boolean temp = false;
 
 	// State
-	public int worldX, worldY;
+	public int worldX, worldY, otherKeyPressed;
 	public String direction = "down";
 	public int dialogueSet = 0;
 	public int dialogueIndex = 0;

@@ -15,6 +15,7 @@ import NinjaAdventure.socket.packet.Packet.PacketTypes;
 import NinjaAdventure.socket.packet.Packet00JoinGame;
 import NinjaAdventure.socket.packet.Packet01Disconnect;
 import NinjaAdventure.socket.packet.Packet02Move;
+import NinjaAdventure.socket.packet.Packet03UpdateLife;
 
 public class InGameServer extends Thread {
 	private DatagramSocket socket;
@@ -72,6 +73,11 @@ public class InGameServer extends Thread {
 //	            System.out.println(((Packet02Move) packet).getUsername() + " has moved to "
 //	                    + ((Packet02Move) packet).getX() + ", " + ((Packet02Move) packet).getY() + " and pressed " + ((Packet02Move) packet).getOtherKeyPressed());
 	            this.handleMove(((Packet02Move) packet));
+        	case UPDATE_LIFE:
+	            packet = new Packet03UpdateLife(data);
+//	            System.out.println(((Packet02Move) packet).getUsername() + " has moved to "
+//	                    + ((Packet02Move) packet).getX() + ", " + ((Packet02Move) packet).getY() + " and pressed " + ((Packet02Move) packet).getOtherKeyPressed());
+	            this.handleUpdateLife(((Packet03UpdateLife) packet));
         }
     }
     
@@ -151,6 +157,14 @@ public class InGameServer extends Thread {
             this.connectedPlayers.get(index).worldX = packet.getX();
             this.connectedPlayers.get(index).worldY = packet.getY();
             this.connectedPlayers.get(index).otherKeyPressed = packet.getOtherKeyPressed();
+            packet.writeData(this);
+        }
+    }
+    
+    private void handleUpdateLife(Packet03UpdateLife packet) {
+        if (getPlayerMP(packet.getUsername()) != null) {
+            int index = getPlayerMPIndex(packet.getUsername());
+            this.connectedPlayers.get(index).life = packet.getLife();
             packet.writeData(this);
         }
     }

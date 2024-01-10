@@ -3,6 +3,7 @@ package NinjaAdventure.game.src.main;
 import java.io.Serializable;
 
 import NinjaAdventure.game.src.entity.Entity;
+import NinjaAdventure.game.src.entity.Player;
 
 public class CollisionChecker implements Serializable{
 	GamePanel gp;
@@ -146,6 +147,12 @@ public class CollisionChecker implements Serializable{
 		
 		for (int i = 0; i < target[1].length; ++i) {
 			if (target[gp.currentMap][i] != null) {
+				if (
+						target[gp.currentMap][i] instanceof Player && 
+						(((Player)target[gp.currentMap][i]).getKeyH() != null)
+				) {
+					continue;
+				}
 				// Get entity's solid area position
 				entity.solidArea.x = entity.worldX + entity.solidArea.x;
 				entity.solidArea.y = entity.worldY + entity.solidArea.y;

@@ -6,7 +6,7 @@ import NinjaAdventure.socket.InGameServer;
 public abstract class Packet {
 
     public static enum PacketTypes {
-        INVALID(-1), JOIN_GAME(00), DISCONNECT(01), MOVE(02);
+        INVALID(-1), JOIN_GAME(00), DISCONNECT(01), MOVE(02), UPDATE_LIFE(03);
 
         private int packetId;
 

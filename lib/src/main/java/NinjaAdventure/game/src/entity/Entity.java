@@ -14,6 +14,7 @@ import javax.imageio.ImageIO;
 
 import NinjaAdventure.game.src.main.GamePanel;
 import NinjaAdventure.game.src.main.UtilityTool;
+import NinjaAdventure.socket.packet.Packet03UpdateLife;
 
 public class Entity {
 	GamePanel gp;
@@ -135,6 +136,12 @@ public class Entity {
 	public Entity(GamePanel game, String name) {
 		this.gp = game;
 		this.name = name;
+	}
+	
+	public Entity(GamePanel game, String name, int life) {
+		this.gp = game;
+		this.name = name;
+		this.life = life;
 	}
 
 	public int getScreenX() {
@@ -604,6 +611,9 @@ public class Entity {
 					damagePlayer(attack);
 				}
 			} else {
+				int playerIndex = gp.cChecker.checkEntity(this, gp.players);
+				gp.player.damageOtherPlayer(playerIndex, this, attack, currentWeapon.knockBackPower);;
+				
 				// Check collision
 				int monsterIndex = gp.cChecker.checkEntity(this, gp.monster);
 				gp.player.damageMonster(monsterIndex, this, attack, currentWeapon.knockBackPower);
@@ -667,6 +677,8 @@ public class Entity {
 			}
 
 			gp.player.life -= damage;
+			Packet03UpdateLife packet = new Packet03UpdateLife(gp.player.getUsername(), gp.player.life);
+	        packet.writeData(GamePanel.game.socketClient);
 			gp.player.invincible = true;
 		}
 	}

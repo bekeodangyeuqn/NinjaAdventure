@@ -240,6 +240,7 @@ public class GamePanel extends JPanel implements Runnable, Serializable {
 		loginPacket.writeData(socketClient);
 		
 		this.setupGame();
+		System.out.println(player.life);
 	}
 
 	public synchronized void startGameThread() {
@@ -249,11 +250,13 @@ public class GamePanel extends JPanel implements Runnable, Serializable {
 			socketServer.start();
 		}
 		
+		
 		gameThread = new Thread(this, "Main_" + NAME);
 		gameThread.start();
 		
 		socketClient = new InGameClient(this, "localhost");
 		socketClient.start();
+		
 
 	}
 
@@ -266,10 +269,12 @@ public class GamePanel extends JPanel implements Runnable, Serializable {
 		long currentTime;
 		long timer = 0;
 		int drawCount = 0;
-
+		
+//		System.out.println(player.life);
 		init();
-
+		System.out.println(player.maxLife);
 		while (gameThread != null) {
+			System.out.println(player.maxLife);
 			currentTime = System.nanoTime();
 
 			delta += (currentTime - lastTime) / drawInterval;
@@ -365,6 +370,7 @@ public class GamePanel extends JPanel implements Runnable, Serializable {
 				players[currentMap][i] = player;
 				players[currentMap][i].worldX = player.worldX;
 				players[currentMap][i].worldY = player.worldY;
+				players[currentMap][i].life = player.life;
 				break;
 			}
 		}
@@ -584,6 +590,12 @@ public class GamePanel extends JPanel implements Runnable, Serializable {
         players[currentMap][index].worldX = x;
         players[currentMap][index].worldY = y;
         players[currentMap][index].otherKeyPressed = otherKeyPressed;
+    }
+    
+    public void updateLife(String username, int life) {
+//    	System.out.println("Other key pressed: " + otherKeyPressed + " " + username);
+        int index = getPlayerMPIndex(username);
+        players[currentMap][index].life = life;
     }
     
     public void removePlayerMP(String username) {

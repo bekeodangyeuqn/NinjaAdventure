@@ -15,6 +15,7 @@ import NinjaAdventure.game.src.object.OBJ_Shield_Wood;
 import NinjaAdventure.game.src.object.OBJ_Sword_Normal;
 import NinjaAdventure.socket.packet.Packet01Disconnect;
 import NinjaAdventure.socket.packet.Packet02Move;
+import NinjaAdventure.socket.packet.Packet03UpdateLife;
 
 public class Player extends Entity {
 	KeyHandler keyH;
@@ -51,6 +52,7 @@ public class Player extends Entity {
 //		attackArea.height = 36;
 		
 		setDefaultValues();
+//		System.out.println(life);
 	}
 	
 	public Player(GamePanel game, KeyHandler input, String username) {
@@ -70,6 +72,8 @@ public class Player extends Entity {
 		solidArea.height = 32;
         
         setDefaultValues();
+//        System.out.println(life);
+        
     }
 	
 	public Player(GamePanel game, KeyHandler input, String username, int x, int y)
@@ -90,6 +94,7 @@ public class Player extends Entity {
 		solidArea.height = 32;
         
         setDefaultValues();
+//        System.out.println(life);
         
         worldX = x;
         worldY = y;
@@ -113,6 +118,7 @@ public class Player extends Entity {
 		solidArea.height = 32;
         
         setDefaultValues();
+//        System.out.println(life);
         
         worldX = x;
         worldY = y;
@@ -690,28 +696,6 @@ public class Player extends Entity {
 				shotAvailableCounter = 0;
 			}
 			
-			if (((keyH != null) && (keyH.godModeOn == false)) || (otherKeyPressed == 7) ) {
-				if (life <= 0) {
-					Packet01Disconnect packet = new Packet01Disconnect(this.gp.player.getUsername());
-			        packet.writeData(this.gp.socketClient);
-					gp.gameState = gp.gameOverState;
-					gp.ui.commandNum = -1;
-//					gp.stopMusic();
-//					gp.playSE(12);
-//			        System.exit(0);
-				}
-			}
-			else {
-				strength = 50;
-				getAttack();
-				dexterity = 50;
-				getDefense();
-				maxLife = 20;
-				life = maxLife;
-				maxMana = 12;
-				mana = maxMana;
-				speed = 4;
-			}
 //		This needs to be outside of key if statement!
 		if (invincible == true) {
 			invincibleCounter++;
@@ -732,6 +716,20 @@ public class Player extends Entity {
 		
 		if (mana > maxMana) {
 			mana = maxMana;
+		}
+		
+//		System.out.println(getUsername() + " life: " + life + ".");
+		if (keyH == null) {
+			if (life <= 0) {
+				Packet01Disconnect packet = new Packet01Disconnect(this.getUsername());
+		        packet.writeData(this.gp.socketClient);
+//				gp.gameState = gp.gameOverState;
+//				gp.ui.commandNum = -1;
+//				gp.stopMusic();
+//				gp.playSE(12);
+//		        System.exit(0);
+			}
+			
 		}
 		
 //		System.out.println("SetKeyPress: " + setKeyPress + " " + this.getUsername());
@@ -825,6 +823,97 @@ public class Player extends Entity {
 				invincible = true;
 				transparent = true;
 			}
+		}
+	}
+	
+	public void damageOtherPlayer(int i, Entity attacker, int attack, int knockBackPower) {
+		if (i != 999) {
+			if (gp.players[gp.currentMap][i].invincible == false) {
+				int damage = attack - gp.players[gp.currentMap][i].defense;
+
+				// Get opposite direction of the attacker
+				String canGuardDirection = getOppositeDirection(gp.players[gp.currentMap][i].direction);
+
+				if (gp.players[gp.currentMap][i].guarding && gp.players[gp.currentMap][i].direction.equals(canGuardDirection)) {
+					// Parry
+					if (gp.players[gp.currentMap][i].guardCounter < 48) {
+						damage = 0;
+						gp.playSE(16);
+						setKnockBack(this, gp.players[gp.currentMap][i], knockBackPower);
+						offBalance = true;
+						spriteCounter = -60;
+					} else {
+						// Normal block
+						damage /= 3;
+						gp.playSE(15);
+					}
+
+					// Decrease durability
+//					gp.player.currentShield.durability--;
+				} else {
+					// Not guarding
+					gp.playSE(6);
+
+					if (damage < 1) {
+						damage = 1;
+					}
+				}
+
+				if (damage != 0) {
+					gp.players[gp.currentMap][i].transparent = true;
+					setKnockBack(gp.players[gp.currentMap][i], this, knockBackPower);
+				}
+				
+				gp.ui.addMessage(damage + " damage!");
+				gp.ui.addMessage(((Player)gp.players[gp.currentMap][i]).getUsername() + " has " + gp.players[gp.currentMap][i].life + " life left!");
+				gp.ui.addMessage(gp.player.getUsername() + " has " + gp.player.life + " life left!");
+
+				gp.players[gp.currentMap][i].life -= damage;
+				Packet03UpdateLife packet = new Packet03UpdateLife(((Player)gp.players[gp.currentMap][i]).getUsername(), gp.players[gp.currentMap][i].life);
+		        packet.writeData(GamePanel.game.socketClient);
+				
+				if (gp.players[gp.currentMap][i].life <= 0) {
+//					gp.players[gp.currentMap][i].dying = true;
+					gp.ui.addMessage(gp.player.getUsername() + " killed " + ((Player) gp.players[gp.currentMap][i]).getUsername() + "!");
+				}
+				else gp.players[gp.currentMap][i].invincible = true;
+			}
+			
+//			if (gp.players[gp.currentMap][i].invincible == false) {				
+//				gp.playSE(5);
+//				
+////				Decrease durability of the weapon
+////				currentWeapon.durability--;
+//				
+//				if (knockBackPower > 0) {
+//					setKnockBack(gp.players[gp.currentMap][i], attacker, knockBackPower);
+//				}
+//				
+//				if (gp.players[gp.currentMap][i].offBalance == true) {
+//					attack *= 5;
+//				}
+//				
+//				int damage = attack - gp.players[gp.currentMap][i].defense;
+//				
+//				if (damage < 0) {
+//					damage = 0;
+//				}
+//				
+//				gp.players[gp.currentMap][i].life -= damage;
+//				
+//				gp.ui.addMessage(damage + " damage!");
+//				
+//				gp.players[gp.currentMap][i].invincible = true;
+//				gp.players[gp.currentMap][i].damageReaction();
+//				
+//				if (gp.players[gp.currentMap][i].life <= 0) {
+//					gp.players[gp.currentMap][i].dying = true;
+//					gp.ui.addMessage("You killed " + ((Player) gp.players[gp.currentMap][i]).getUsername() + "!");
+////					exp += gp.players[gp.currentMap][i].exp;
+////					gp.ui.addMessage("You gained " + gp.monster[gp.currentMap][i].exp + " exp!");
+////					checkLevelUp();
+//				}
+//			}
 		}
 	}
 	

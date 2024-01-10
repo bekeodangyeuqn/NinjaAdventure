@@ -21,30 +21,35 @@ public class PlayerMP extends Player implements Serializable{
         super(game, input, username);
         this.ipAddress = ipAddress;
         this.port = port;
+        System.out.println(life);
     }
 
     public PlayerMP(GamePanel game, String username, InetAddress ipAddress, int port) {
         super(game, null, username);
         this.ipAddress = ipAddress;
         this.port = port;
+        System.out.println(life);
     }
     
     public PlayerMP(GamePanel game, String username, InetAddress ipAddress, int port, int x, int y) {
         super(game, null, username, x, y);
         this.ipAddress = ipAddress;
         this.port = port;
+        System.out.println(life);
     }
     
     public PlayerMP(GamePanel game, KeyHandler input, String username, InetAddress ipAddress, int port, int x, int y) {
         super(game, input, username, x, y);
         this.ipAddress = ipAddress;
         this.port = port;
+        System.out.println(life);
     }
     
     public PlayerMP(GamePanel game, String username, InetAddress ipAddress, int port, int x, int y, int otherKeyPressed) {
         super(game, null, username, x, y, otherKeyPressed);
         this.ipAddress = ipAddress;
         this.port = port;
+        System.out.println(life);
     }
     
     public PlayerMP(GamePanel game, KeyHandler input, String username, InetAddress ipAddress, int port, int x, int y, int otherKeyPressed) {
@@ -52,7 +57,46 @@ public class PlayerMP extends Player implements Serializable{
         this.ipAddress = ipAddress;
         this.port = port;
         this.otherKeyPressed = otherKeyPressed;
+        System.out.println(life);
     }
+    
+    
+//    public PlayerMP(GamePanel game, KeyHandler input, String username, InetAddress ipAddress, int port, int life) {
+//        super(game, input, username, life);
+//        this.ipAddress = ipAddress;
+//        this.port = port;
+//    }
+//
+//    public PlayerMP(GamePanel game, String username, InetAddress ipAddress, int port, int life) {
+//        super(game, null, username, life);
+//        this.ipAddress = ipAddress;
+//        this.port = port;
+//    }
+//    
+////    public PlayerMP(GamePanel game, String username, InetAddress ipAddress, int port, int x, int y, int life) {
+////        super(game, null, username, x, y);
+////        this.ipAddress = ipAddress;
+////        this.port = port;
+////    }
+////    
+//    public PlayerMP(GamePanel game, KeyHandler input, String username, InetAddress ipAddress, int port, int x, int y, int life) {
+//        super(game, input, username, x, y, life);
+//        this.ipAddress = ipAddress;
+//        this.port = port;
+//    }
+//    
+//    public PlayerMP(GamePanel game, String username, InetAddress ipAddress, int port, int x, int y, int otherKeyPressed, int life) {
+//        super(game, null, username, x, y, otherKeyPressed, life);
+//        this.ipAddress = ipAddress;
+//        this.port = port;
+//    }
+//    
+//    public PlayerMP(GamePanel game, KeyHandler input, String username, InetAddress ipAddress, int port, int x, int y, int otherKeyPressed, int life) {
+//        super(game, input, username, x, y, otherKeyPressed, life);
+//        this.ipAddress = ipAddress;
+//        this.port = port;
+//        this.otherKeyPressed = otherKeyPressed;
+//    }
 
 	@Override
 	public void update() {

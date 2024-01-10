@@ -772,6 +772,7 @@ public class UI {
 		int iconSize = 32;
 		int manaStartX = (gp.tileSize/2) - 7;
 		int manaStartY = 0;
+//		System.out.println(gp.player.life);
 		
 //		Draw Blank Heart
 		while (i < gp.player.maxLife / 2) {

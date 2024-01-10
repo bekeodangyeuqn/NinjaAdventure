@@ -14,6 +14,7 @@ import NinjaAdventure.socket.packet.Packet.PacketTypes;
 import NinjaAdventure.socket.packet.Packet00JoinGame;
 import NinjaAdventure.socket.packet.Packet01Disconnect;
 import NinjaAdventure.socket.packet.Packet02Move;
+import NinjaAdventure.socket.packet.Packet03UpdateLife;
 
 public class InGameClient extends Thread {
 	private InetAddress ipAddress;
@@ -70,6 +71,9 @@ public class InGameClient extends Thread {
         case MOVE:
             packet = new Packet02Move(data);
             handleMove((Packet02Move) packet);
+        case UPDATE_LIFE:
+        	packet = new Packet03UpdateLife(data);
+        	handleUpdateLife((Packet03UpdateLife) packet);
         }
     }
 
@@ -91,5 +95,9 @@ public class InGameClient extends Thread {
 
     private void handleMove(Packet02Move packet) {
         this.game.movePlayer(packet.getUsername(), packet.getX(), packet.getY(), packet.getOtherKeyPressed());
+    }
+    
+    private void handleUpdateLife(Packet03UpdateLife packet) {
+        this.game.updateLife(packet.getUsername(), packet.getLife());
     }
 }

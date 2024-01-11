@@ -73,6 +73,7 @@ public class InGameServer extends Thread {
 //	            System.out.println(((Packet02Move) packet).getUsername() + " has moved to "
 //	                    + ((Packet02Move) packet).getX() + ", " + ((Packet02Move) packet).getY() + " and pressed " + ((Packet02Move) packet).getOtherKeyPressed());
 	            this.handleMove(((Packet02Move) packet));
+	            break;
         	case UPDATE_LIFE:
 	            packet = new Packet03UpdateLife(data);
 //	            System.out.println(((Packet02Move) packet).getUsername() + " has moved to "

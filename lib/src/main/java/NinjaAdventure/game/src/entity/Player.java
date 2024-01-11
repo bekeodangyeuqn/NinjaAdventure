@@ -719,18 +719,18 @@ public class Player extends Entity {
 		}
 		
 //		System.out.println(getUsername() + " life: " + life + ".");
-		if (keyH == null) {
-			if (life <= 0) {
+//		if (keyH == null) {
+			if (gp.player.life <= 0) {
 				Packet01Disconnect packet = new Packet01Disconnect(this.getUsername());
 		        packet.writeData(this.gp.socketClient);
-//				gp.gameState = gp.gameOverState;
-//				gp.ui.commandNum = -1;
+				gp.gameState = gp.gameOverState;
+				gp.ui.commandNum = -1;
 //				gp.stopMusic();
 //				gp.playSE(12);
 //		        System.exit(0);
 			}
 			
-		}
+//		}
 		
 //		System.out.println("SetKeyPress: " + setKeyPress + " " + this.getUsername());
 //		System.out.println("OtherKeyPress: " + otherKeyPressed + " " + this.getUsername());

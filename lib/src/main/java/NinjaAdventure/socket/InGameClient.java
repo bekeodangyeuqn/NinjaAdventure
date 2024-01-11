@@ -71,6 +71,7 @@ public class InGameClient extends Thread {
         case MOVE:
             packet = new Packet02Move(data);
             handleMove((Packet02Move) packet);
+            break;
         case UPDATE_LIFE:
         	packet = new Packet03UpdateLife(data);
         	handleUpdateLife((Packet03UpdateLife) packet);

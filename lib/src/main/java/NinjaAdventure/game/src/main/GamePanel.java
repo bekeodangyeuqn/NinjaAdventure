@@ -254,7 +254,7 @@ public class GamePanel extends JPanel implements Runnable, Serializable {
 		gameThread = new Thread(this, "Main_" + NAME);
 		gameThread.start();
 		
-		socketClient = new InGameClient(this, "localhost");
+		socketClient = new InGameClient(this, "127.0.0.1");
 		socketClient.start();
 		
 

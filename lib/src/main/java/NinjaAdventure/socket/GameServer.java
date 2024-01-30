@@ -78,9 +78,7 @@ public class GameServer implements Serializable{
 	
 	public static void broadcastServerMessage(ServerMessage serverMessage, ClientHandler sender) {
         for (ClientHandler client : clientHandlers) {
-        	if (client != sender) {
                 client.sendServerMessage(serverMessage);
-            }
         }
     }
 	
@@ -111,7 +109,7 @@ public class GameServer implements Serializable{
 	                        String userIdFromDB = userSnapshot.child("userId").getValue(String.class);
 	                        System.out.println("Dang nhap thanh cong");
 	                        System.out.println("UserId: " + userIdFromDB);
-	                        ServerMessage message = new ServerMessage(ServerMessage.MSG_TYPE.LOGIN, ServerMessage.STATUS.SUCCESS, username, userIdFromDB);
+	                        ServerMessage message = new ServerMessage(ServerMessage.MSG_TYPE.LOGIN, ServerMessage.STATUS.SUCCESS, username, userIdFromDB, "Logged in sucessfully");
 	                    	clientHandler.sendServerMessage(message);
 //	                        setVisible(false);
 //	                        new SetupGameMode(client).setVisible(true);
@@ -157,14 +155,16 @@ public class GameServer implements Serializable{
 		});
 	}
 	
-	public static void handleCreateRoom(String username, String roomName, String password, int numOfPlayers, ClientHandler clientHandler) {
+	public static void handleCreateRoom(String username, String roomName, String password, int numOfPlayers, String ipAddress, ClientHandler clientHandler) {
 		DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("Users");
 		DatabaseReference roomRef = FirebaseDatabase.getInstance().getReference().child("Rooms");
 		Query checkUserDatabase = userRef.orderByChild("username").equalTo(username);
 		String roomId = generateUUID();
 		Room room = new Room(roomName, numOfPlayers);
+		room.setHostUsername(username);
 		room.setPass(password);
 		room.setCurUser(1);
+		room.setIpAdrress(ipAddress);
 		checkUserDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
 
 	        @Override
@@ -180,7 +180,7 @@ public class GameServer implements Serializable{
 	                    	// room.addAPlayer(player1);
 	                    	roomRef.child(roomId).setValue(room, null);
 	                    	roomRef.child(roomId).child("players").child(player1.getUserId()).setValue(true, null);
-	                    	ServerMessage message = new ServerMessage(ServerMessage.MSG_TYPE.CREATE_ROOM, ServerMessage.STATUS.SUCCESS, player1, roomName, password, numOfPlayers);
+	                    	ServerMessage message = new ServerMessage(ServerMessage.MSG_TYPE.CREATE_ROOM, ServerMessage.STATUS.SUCCESS, player1, roomName, password, numOfPlayers, "Tao phong thanh cong");
            				    clientHandler.sendServerMessage(message);
            				    broadcastServerMessage(message, clientHandler);
            				    System.out.println("Tao phong thanh cong");
@@ -206,7 +206,7 @@ public class GameServer implements Serializable{
 	    });
 	}
 	
-	public static void handleJoinRoom(String userId, Room room, String password, ClientHandler clientHandler) {
+	public static void handleJoinRoom(String username, String userId, Room room, String password, ClientHandler clientHandler) {
 		DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("Users");
 		DatabaseReference roomRef = FirebaseDatabase.getInstance().getReference().child("Rooms");
 		System.out.println("Handle join room user id: " + userId);
@@ -226,11 +226,12 @@ public class GameServer implements Serializable{
 	                    String passFromDB = roomSnapshot.child("pass").getValue(String.class);
 	                    if (curUserFromDB < numOfPlayersFromDB) {
 	                    	if (password.equals(passFromDB)) {
-	                    		roomRef.child(roomSnapshot.getKey()).child("players").child(userId).setValue(true, null);
-	                    		roomRef.child(roomSnapshot.getKey()).child("curUser").setValue(curUserFromDB + 1, null);
-	                    		 
-	                    		 ServerMessage message = new ServerMessage(ServerMessage.MSG_TYPE.JOIN_ROOM, ServerMessage.STATUS.SUCCESS, room, "Nguoi choi vao phong thanh cong");
-	            				 clientHandler.sendServerMessage(message);
+	                    		if (roomRef.child(roomSnapshot.getKey()).child("players").child(userId).getPath() == null) {
+	                    			roomRef.child(roomSnapshot.getKey()).child("players").child(userId).setValue(true, null);
+		                    		roomRef.child(roomSnapshot.getKey()).child("curUser").setValue(curUserFromDB + 1, null);
+	                    		} 
+	                    	
+	                    		 ServerMessage message = new ServerMessage(ServerMessage.MSG_TYPE.JOIN_ROOM, ServerMessage.STATUS.SUCCESS, room, "Nguoi choi " + username + " da vao phong thanh cong");
 	            				 broadcastServerMessage(message, clientHandler);
 	            				 System.out.println("Vao phong thanh cong");
 	                    	} else {

@@ -11,6 +11,8 @@ public class Room implements Serializable {
     int numOfPlayers,curUser;
     List<User> players = new ArrayList<>();
     String pass;
+    String ipAdrress;
+    String hostUsername;
     
     public Room() { 
     	
@@ -20,6 +22,20 @@ public class Room implements Serializable {
 		this.name = name;
 		this.numOfPlayers = numOfPlayers;
 		this.players = players;
+	}
+	
+	public Room(String name, int numOfPlayers, List<User> players, String ipAdrress) {
+		super();
+		this.name = name;
+		this.numOfPlayers = numOfPlayers;
+		this.players = players;
+		this.ipAdrress = ipAdrress;
+	}
+	
+	public Room(String name, String ipAdrress) {
+		super();
+		this.name = name;
+		this.ipAdrress = ipAdrress;
 	}
 	
 	public Room(String name, int numOfPlayers) {
@@ -61,7 +77,25 @@ public class Room implements Serializable {
 		this.curUser = curUser;
 	}
 	
+	
+	public String getHostUsername() {
+		return hostUsername;
+	}
+	public void setHostUsername(String hostUsername) {
+		this.hostUsername = hostUsername;
+	}
+	public String getIpAdrress() {
+		return ipAdrress;
+	}
+	public void setIpAdrress(String ipAdrress) {
+		this.ipAdrress = ipAdrress;
+	}
 	public void addAPlayer(User user) {
+		for (User player : players) {
+			if (player.getUsername().equals(user.getUsername())) {
+				return;
+			}
+		}
 		players.add(user);
 		this.curUser++;
 	}

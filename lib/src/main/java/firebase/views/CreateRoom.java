@@ -19,6 +19,12 @@ import javax.swing.JSpinner;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
 
 import javax.swing.event.ChangeListener;
 
@@ -42,8 +48,10 @@ public class CreateRoom extends JFrame {
 	private JPanel contentPane;
 	private JTextField textField_roomname;
 	private JTextField textField_pass;
+	private JTextField textField_ip;
 	private JSpinner spinner = new JSpinner();
 	private JButton btn_create = new JButton("Create");
+	private CreateRoom _this = this;
 
 	/**
 	 * Launch the application.
@@ -133,10 +141,10 @@ public class CreateRoom extends JFrame {
 		spinner.setBounds(588, 300, 546, 28);
 		backgroundPanel.add(spinner);
 		
-		JLabel lb_roomName_1_1 = new JLabel("Room Password");
+		JLabel lb_roomName_1_1 = new JLabel("Password");
 		lb_roomName_1_1.setHorizontalAlignment(SwingConstants.CENTER);
 		lb_roomName_1_1.setFont(new Font("Tahoma", Font.BOLD, 20));
-		lb_roomName_1_1.setBounds(369, 377, 181, 28);
+		lb_roomName_1_1.setBounds(369, 371, 159, 28);
 		backgroundPanel.add(lb_roomName_1_1);
 		
 		textField_pass = new JTextField();
@@ -146,11 +154,30 @@ public class CreateRoom extends JFrame {
 				valid();
 			}
 		});
-		textField_pass.setToolTipText("Enter Room Name");
+		textField_pass.setToolTipText("Enter Room Password");
 		textField_pass.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		textField_pass.setColumns(10);
-		textField_pass.setBounds(588, 377, 546, 28);
+		textField_pass.setBounds(588, 371, 546, 28);
 		backgroundPanel.add(textField_pass);
+		
+		JLabel lb_roomName_1_1_1 = new JLabel("Ip Address");
+		lb_roomName_1_1_1.setHorizontalAlignment(SwingConstants.CENTER);
+		lb_roomName_1_1_1.setFont(new Font("Tahoma", Font.BOLD, 20));
+		lb_roomName_1_1_1.setBounds(369, 447, 159, 28);
+		backgroundPanel.add(lb_roomName_1_1_1);
+		
+		textField_ip = new JTextField();
+		textField_ip.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				valid();
+			}
+		});
+		textField_ip.setToolTipText("Enter your LAN Ip Address");
+		textField_ip.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		textField_ip.setColumns(10);
+		textField_ip.setBounds(588, 447, 546, 28);
+		backgroundPanel.add(textField_ip);
 		
 		
 		
@@ -162,7 +189,9 @@ public class CreateRoom extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				setVisible(false);
 				// createNewRoom(textField_roomname.getText(), (int) spinner.getValue(), textField_pass.getText());
-				client.createRoom(client.getUsername(), textField_roomname.getText(), textField_pass.getText(), (int) spinner.getValue());
+				if (getRoomIpAddress().size() == 0)
+					JOptionPane.showMessageDialog(_this, "Your computer not have LAN ip to make room server", "Error", JOptionPane.ERROR_MESSAGE);
+				client.createRoom(client.getUsername(), textField_roomname.getText(), textField_pass.getText(), (int) spinner.getValue(), textField_ip.getText());
 			}
 		});
 	}
@@ -183,6 +212,31 @@ public class CreateRoom extends JFrame {
 			btn_create.setEnabled(false);
 		}
 	}
+	
+	public static List<String> getRoomIpAddress() {
+		List<String> ipAddresses = new ArrayList<>();
+		
+		 try {
+	            Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
+	            while (networkInterfaces.hasMoreElements()) {
+	                NetworkInterface networkInterface = networkInterfaces.nextElement();
+	                if (networkInterface.isUp() && !networkInterface.isLoopback()) {
+	                    Enumeration<InetAddress> inetAddresses = networkInterface.getInetAddresses();
+	                    while (inetAddresses.hasMoreElements()) {
+	                        InetAddress inetAddress = inetAddresses.nextElement();
+	                        if (inetAddress.isSiteLocalAddress()) {
+//	                            System.out.println("Network Interface: " + networkInterface.getDisplayName());
+//	                            System.out.println("IPv4 Address: " + inetAddress.getHostAddress());
+	                        	ipAddresses.add(inetAddress.getHostAddress());
+	                        }
+	                    }
+	                }
+	            }
+	        } catch (SocketException e) {
+	            e.printStackTrace();
+	        }
+		 return ipAddresses;
+	}
 	public void createNewRoom(ServerMessage serverMessage, MultiScreenClient client) {
 		System.out.println("Server status: " + serverMessage.getStatus());
 		if (serverMessage.getStatus() == ServerMessage.STATUS.SUCCESS ) {
@@ -192,7 +246,10 @@ public class CreateRoom extends JFrame {
 	            JOptionPane.showMessageDialog(this, "Room Name is required", "Error", JOptionPane.ERROR_MESSAGE);
 	            return;
 	        }
-
+			Toast t = new Toast(serverMessage.getPayload(), 700, 600); 
+			  
+	        // call the method 
+	        t.showtoast(); 
 	        // Thông báo cho lớp nghe biết rằng có phòng mới được tạo
 			setVisible(false);
 	       new RoomList(client).setVisible(true);

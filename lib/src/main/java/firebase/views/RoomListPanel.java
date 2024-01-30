@@ -58,9 +58,11 @@ public class RoomListPanel extends JPanel {
 		                        String roomnameFromDB = roomSnapshot.child("name").getValue(String.class);
 		                        int numOfPLayersFromDB = roomSnapshot.child("numOfPlayers").getValue(Integer.class);
 		                        int curUserFromDB =  roomSnapshot.child("curUser").getValue(Integer.class);
+		                        String hostUserFromDB = roomSnapshot.child("hostUsername").getValue(String.class);
 		                        Room room = new Room(roomnameFromDB, numOfPLayersFromDB);
 		                		room.setPass(passwordFromDB);
 		                		room.setCurUser(curUserFromDB);
+		                		room.setHostUsername(hostUserFromDB);
 		                		refUser.addListenerForSingleValueEvent(new ValueEventListener() {
 
 									@Override
@@ -161,12 +163,13 @@ public class RoomListPanel extends JPanel {
 		    panel.addMouseListener((MouseListener) new MouseAdapter() {
 	            @Override
 	            public void mouseClicked(MouseEvent e) {	
-	            	 if(room.getCurUser()==room.getNumOfPlayers()) {
-	            		 RoomWaiting roomWaiting = new RoomWaiting(room, client);
-	            		 roomWaiting.setRoomListPanel(RoomListPanel.this);
-	            		 roomWaiting.setVisible(true);
+//	            	 if(room.getCurUser() > room.getNumOfPlayers()) {
+//	            		 JOptionPane.showMessageDialog(null, "<html><b style=\"color:red\">" + "Room is full" + "</b>  </html>", "Message", JOptionPane.ERROR_MESSAGE);
+//	            		 RoomWaiting roomWaiting = new RoomWaiting(room, client);
+//	            		 roomWaiting.setRoomListPanel(RoomListPanel.this);
+//	            		 roomWaiting.setVisible(true);
 	            		
-	            	 }else {
+//	            	 }else {
 	            		// Hiển thị hộp thoại popup để nhập thông tin
 		            	    JPanel panel = new JPanel();
 		            	
@@ -180,11 +183,14 @@ public class RoomListPanel extends JPanel {
 		            	        
 		            	        char[] passwordChars = passwordField.getPassword();
 		            	        String password = new String(passwordChars);
-		            	        client.joinRoom(client.getUserId(), room, password);
+		            	        client.joinRoom(client.getUsername(), client.getUserId(), room, password);
 		            	        rooms.remove(room);
 		            	        updateUI1(rooms, client);
+		            	        RoomWaiting roomWaiting = new RoomWaiting(room, client);
+			            		roomWaiting.setRoomListPanel(RoomListPanel.this);
+			            		roomWaiting.setVisible(true);
 		            	    }
-	            	 }	            		            		                     
+//	            	 }	            		            		                     
 	            }
 	           
 	        });		    

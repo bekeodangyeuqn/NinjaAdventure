@@ -35,6 +35,7 @@ import NinjaAdventure.socket.InGameClient;
 import NinjaAdventure.socket.InGameServer;
 import NinjaAdventure.socket.MultiScreenClient;
 import NinjaAdventure.socket.packet.Packet00JoinGame;
+import firebase.model.Room;
 
 public class GamePanel extends JPanel implements Runnable, Serializable {
 	private static final long serialVersionUID = 1L;
@@ -131,7 +132,8 @@ public class GamePanel extends JPanel implements Runnable, Serializable {
 	public static GamePanel game;
 	public JFrame window;
 	public WindowHandler windowHandler;
-//	public static int playersNum = 0;
+	public Room room;
+	// public static int playersNum = 0;
 
 	public GamePanel() {
 		this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -141,18 +143,18 @@ public class GamePanel extends JPanel implements Runnable, Serializable {
 		this.setFocusable(true);
 	}
 
-	public GamePanel(String username) {
+	public GamePanel(String username, Room room) {
 		this.setPreferredSize(new Dimension(screenWidth, screenHeight));
 		this.setBackground(Color.black);
 		this.setDoubleBuffered(true);
 		this.setFocusable(true);
-		
+
 		window = new JFrame();
 
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setResizable(false);
 		window.setTitle("PROJECT LTM");
-		
+
 		window.add(this);
 
 		this.config.loadConfig();
@@ -170,8 +172,9 @@ public class GamePanel extends JPanel implements Runnable, Serializable {
 
 		ImageIcon icon = new ImageIcon(getClass().getClassLoader().getResource("player/boy_down_1.png"));
 		window.setIconImage(icon.getImage());
-		
+
 		this.username = username;
+		this.room = room;
 	}
 
 	public void setupGame() {
@@ -217,46 +220,45 @@ public class GamePanel extends JPanel implements Runnable, Serializable {
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		GraphicsDevice gd = ge.getDefaultScreenDevice();
 
-		gd.setFullScreenWindow(Main.window);
+		gd.setFullScreenWindow(this.window);
 
 		// Get full screen w and h
-		screenWidth2 = Main.window.getWidth();
-		screenHeight2 = Main.window.getHeight();
+		screenWidth2 = this.window.getWidth();
+		screenHeight2 = this.window.getHeight();
 	}
 
 	public void init() {
 		game = this;
 		keyH = new KeyHandler(this);
 		windowHandler = new WindowHandler(this);
-		
+
 		player = new PlayerMP(this, this.keyH, this.username,
 				null, -1, tileSize * (23), tileSize * 21);
-		
+
 		this.addEntity(player);
 		Packet00JoinGame loginPacket = new Packet00JoinGame(this.username, player.worldX, player.worldY);
 		if (socketServer != null) {
 			socketServer.addConnection((PlayerMP) player, loginPacket);
 		}
 		loginPacket.writeData(socketClient);
-		
+
 		this.setupGame();
 		System.out.println(player.life);
 	}
 
 	public synchronized void startGameThread() {
-		// Tạo quái 
-		if (JOptionPane.showConfirmDialog(this, "Do you want to run the server") == 0) {
+		// Tạo quái
+		if (room.getHostUsername() == username) {
 			socketServer = new InGameServer(this);
 			socketServer.start();
 		}
-		
-		
+
 		gameThread = new Thread(this, "Main_" + NAME);
 		gameThread.start();
-		
-		socketClient = new InGameClient(this, "127.0.0.1");
+		// String ipAddress = JOptionPane.showInputDialog(this,"Enter host server IP
+		// Address:");
+		socketClient = new InGameClient(this, room.getIpAdrress());
 		socketClient.start();
-		
 
 	}
 
@@ -269,8 +271,8 @@ public class GamePanel extends JPanel implements Runnable, Serializable {
 		long currentTime;
 		long timer = 0;
 		int drawCount = 0;
-		
-//		System.out.println(player.life);
+
+		// System.out.println(player.life);
 		init();
 		System.out.println(player.maxLife);
 		while (gameThread != null) {
@@ -305,9 +307,9 @@ public class GamePanel extends JPanel implements Runnable, Serializable {
 				if (players[currentMap][i] != null) {
 					Player pl = (Player) players[currentMap][i];
 					pl.update();
-				}	
+				}
 			}
-//			player.update();
+			// player.update();
 
 			// NPCs
 			for (int i = 0; i < npc[1].length; ++i) {
@@ -374,24 +376,24 @@ public class GamePanel extends JPanel implements Runnable, Serializable {
 				break;
 			}
 		}
-//		for (Player p : players) {
-//			System.out.println("Player: " + p.getUsername());
-//		}
+		// for (Player p : players) {
+		// System.out.println("Player: " + p.getUsername());
+		// }
 	}
 
 	public void drawToTempScreen() {
 		// DEBUG
 		long drawStart = 0;
-//		if (keyH.showDebugText == true) {
-//			drawStart = System.nanoTime();
-//		}
+		// if (keyH.showDebugText == true) {
+		// drawStart = System.nanoTime();
+		// }
 
 		// TITLE SCREEN
-//		if (gameState == titleState) {
-//			ui.draw(g2);
-//		}
+		// if (gameState == titleState) {
+		// ui.draw(g2);
+		// }
 		// Map screen
-//		else 
+		// else
 		if (gameState == mapState) {
 			map.drawFullMapScreen(g2);
 		}
@@ -408,8 +410,8 @@ public class GamePanel extends JPanel implements Runnable, Serializable {
 			}
 
 			// ADD ENTITIES TO LIST
-//			entityList.add(player);
-			
+			// entityList.add(player);
+
 			for (int i = 0; i < players[1].length; ++i) {
 				if (players[currentMap][i] != null) {
 					entityList.add(players[currentMap][i]);
@@ -457,7 +459,7 @@ public class GamePanel extends JPanel implements Runnable, Serializable {
 
 			// Draw entities
 			for (int i = 0; i < entityList.size(); ++i) {
-				if  (entityList.get(i) instanceof Player) {
+				if (entityList.get(i) instanceof Player) {
 					Player pl = (Player) entityList.get(i);
 					if (pl.getKeyH() == null) {
 						pl.draw2(g2);
@@ -569,44 +571,44 @@ public class GamePanel extends JPanel implements Runnable, Serializable {
 			}
 		}
 	}
-	
-	private int getPlayerMPIndex(String username) {
-        int index = 0;
-        for (int i = 0; i < players[1].length; ++i) {
-        	if (players[currentMap][i] != null) {
-        		Player pl = (Player) players[currentMap][i];
-        		if (pl instanceof PlayerMP && ((PlayerMP) pl).getUsername().equals(username)) {
-                    break;
-                }
-                index++;
-        	}
-        }
-        return index;
-    }
 
-    public void movePlayer(String username, int x, int y, int otherKeyPressed) {
-//    	System.out.println("Other key pressed: " + otherKeyPressed + " " + username);
-        int index = getPlayerMPIndex(username);
-        players[currentMap][index].worldX = x;
-        players[currentMap][index].worldY = y;
-        players[currentMap][index].otherKeyPressed = otherKeyPressed;
-    }
-    
-    public void updateLife(String username, int life) {
-//    	System.out.println("Other key pressed: " + otherKeyPressed + " " + username);
-        int index = getPlayerMPIndex(username);
-        players[currentMap][index].life = life;
-    }
-    
-    public void removePlayerMP(String username) {
-        for (int i = 0; i < players[1].length; ++i) {
-        	Player pl = (Player) players[currentMap][i];
-            if (pl instanceof PlayerMP && ((PlayerMP) pl).getUsername().equals(username)) {
-            	players[currentMap][i] = null;
-                break;
-            }
-        }
-    }
+	private int getPlayerMPIndex(String username) {
+		int index = 0;
+		for (int i = 0; i < players[1].length; ++i) {
+			if (players[currentMap][i] != null) {
+				Player pl = (Player) players[currentMap][i];
+				if (pl instanceof PlayerMP && ((PlayerMP) pl).getUsername().equals(username)) {
+					break;
+				}
+				index++;
+			}
+		}
+		return index;
+	}
+
+	public void movePlayer(String username, int x, int y, int otherKeyPressed) {
+		// System.out.println("Other key pressed: " + otherKeyPressed + " " + username);
+		int index = getPlayerMPIndex(username);
+		players[currentMap][index].worldX = x;
+		players[currentMap][index].worldY = y;
+		players[currentMap][index].otherKeyPressed = otherKeyPressed;
+	}
+
+	public void updateLife(String username, int life) {
+		// System.out.println("Other key pressed: " + otherKeyPressed + " " + username);
+		int index = getPlayerMPIndex(username);
+		players[currentMap][index].life = life;
+	}
+
+	public void removePlayerMP(String username) {
+		for (int i = 0; i < players[1].length; ++i) {
+			Player pl = (Player) players[currentMap][i];
+			if (pl instanceof PlayerMP && ((PlayerMP) pl).getUsername().equals(username)) {
+				players[currentMap][i] = null;
+				break;
+			}
+		}
+	}
 
 	public static void main(String[] args) {
 		new GamePanel().startGameThread();

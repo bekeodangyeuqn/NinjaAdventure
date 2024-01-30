@@ -5,7 +5,6 @@ import javax.swing.*;
 import NinjaAdventure.game.src.entity.PlayerMP;
 import NinjaAdventure.game.src.main.GamePanel;
 import NinjaAdventure.game.src.main.KeyHandler;
-import NinjaAdventure.game.src.main.Main;
 import firebase.model.Room;
 import firebase.views.CreateRoom;
 import firebase.views.ForgotPassWord;
@@ -19,12 +18,18 @@ import java.awt.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
 
 
 public class MultiScreenClient {
-	public static final String SERVER_IP = "127.0.0.1";
+	public static final String SERVER_IP = "26.122.203.21";
 	public static final int SERVER_PORT = 5502;
 	public GamePanel game;
 
@@ -37,9 +42,9 @@ public class MultiScreenClient {
     public RoomList roomListScreen;
     public GamePanel gamePanel;
     
-    private Socket socket;
+    public Socket socket;
     private ObjectOutputStream outputStream;
-    private ObjectInputStream inputStream;
+    public ObjectInputStream inputStream;
     
     private RoomList roomList;
 
@@ -52,6 +57,7 @@ public class MultiScreenClient {
 	private String roomname;
 	private Room room;
 	private String userId;
+	List<String> ipAddresses = new ArrayList<>();
 	
 	
 	public String getUserId() {
@@ -129,6 +135,11 @@ public class MultiScreenClient {
 
         loginScreen.setVisible(true);
         try {
+//        	if (CreateRoom.getRoomIpAddress().get(0) == "192.168.1.5")
+//        		SERVER_IP = "localhost";
+//        	else
+//        		SERVER_IP = "192.168.1.5";
+//        	SERVER_IP = "26.122.203.21";
 			socket = new Socket(SERVER_IP, SERVER_PORT);
 			System.out.println(socket.getLocalPort());
 			outputStream = new ObjectOutputStream(socket.getOutputStream());
@@ -289,12 +300,12 @@ public class MultiScreenClient {
         }
     }
 	
-	public void createRoom(String username, String roomname, String passwordRoom, int numOfPlayers) {
+	public void createRoom(String username, String roomname, String passwordRoom, int numOfPlayers, String ipAddress) {
         this.roomname = roomname;
         this.passwordRoom = passwordRoom;
         this.numOfPlayers = numOfPlayers;
         try {
-            ClientMessage createMessage = new ClientMessage(ClientMessage.MSG_TYPE.CREATE_ROOM, username, roomname, passwordRoom, numOfPlayers);
+            ClientMessage createMessage = new ClientMessage(ClientMessage.MSG_TYPE.CREATE_ROOM, username, roomname, passwordRoom, numOfPlayers, ipAddress);
             outputStream.writeObject(createMessage);
             
             new Thread(() -> {
@@ -311,13 +322,14 @@ public class MultiScreenClient {
         }
     }
 	
-	public void joinRoom(String userId, Room room, String password) {
+	public void joinRoom(String username, String userId, Room room, String password) {
+		this.username = username;
 		this.userId = userId;
         this.room = room;
         this.passwordRoom = password;
         
 		try {
-            ClientMessage joinMessage = new ClientMessage(ClientMessage.MSG_TYPE.JOIN_ROOM, userId, room, password);
+            ClientMessage joinMessage = new ClientMessage(ClientMessage.MSG_TYPE.JOIN_ROOM, username, userId, room, password);
             outputStream.writeObject(joinMessage);
             
             new Thread(() -> {
@@ -339,6 +351,27 @@ public class MultiScreenClient {
         this.userId = userId;
 		try {
             ClientMessage joinMessage = new ClientMessage(ClientMessage.MSG_TYPE.JOIN_GAME, userId, username);
+            outputStream.writeObject(joinMessage);
+            
+            new Thread(() -> {
+                try {
+                	ServerMessage serverMessage = (ServerMessage) inputStream.readObject();
+                    handleServerMessage(serverMessage);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }).start();
+            
+            System.out.println("Handle join game completed");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+	}
+	
+	public void startGame(Room room) {
+		try {
+            ClientMessage joinMessage = new ClientMessage(ClientMessage.MSG_TYPE.START_GAME, room);
             outputStream.writeObject(joinMessage);
             
             new Thread(() -> {

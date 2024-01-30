@@ -16,7 +16,8 @@ public class ServerMessage implements Serializable{
 		JOIN_ROOM,
 		JOIN_GAME,
 		CHARMOVE,
-		PAUSE
+		PAUSE,
+		START_GAME
 	}
 	
 	public enum STATUS {
@@ -182,17 +183,18 @@ public class ServerMessage implements Serializable{
 		this.payload = payload;
 	}
 	
-	public ServerMessage(MSG_TYPE msg_type, STATUS status, String payload1, String payload2) {
+	public ServerMessage(MSG_TYPE msg_type, STATUS status, String payload1, String payload2, String payload3) {
 		super();
 		this.msg_type = msg_type;
 		this.status = status;
 		this.username = payload1;
 		this.userId = payload2;
+		this.payload = payload3;
 	}
 	
 	// Handle for create room response
 	public ServerMessage(MSG_TYPE msg_type, STATUS status, User player, String roomName, String password,
-			int numOfPlayers) {
+			int numOfPlayers, String payload) {
 		super();
 		this.msg_type = msg_type;
 		this.status = status;
@@ -200,6 +202,7 @@ public class ServerMessage implements Serializable{
 		this.roomname = roomName;
 		this.password = password;
 		this.numOfPlayers = numOfPlayers;
+		this.payload = payload;
 		// TODO Auto-generated constructor stub
 	}
 	

@@ -56,7 +56,7 @@ public class ClientHandler implements Runnable{
 				messageFromClient = (ClientMessage) inputStream.readObject();
 				System.out.println("Recived client message: " + messageFromClient.getMsg_type());
 				handleClientMessage(messageFromClient);
-				server.broadcastMessage(messageFromClient, this);
+				// server.broadcastMessage(messageFromClient, this);
 			} catch (IOException | ClassNotFoundException e) {
 				closeEverything(socket, outputStream, inputStream);
 				break;
@@ -110,8 +110,7 @@ public class ClientHandler implements Runnable{
 				break;
 			case START_GAME:
 				System.out.println("Handling start game...");
-				server.broadcastMessage(clientMessage, this);
-				
+				GameServer.broadcastMessageAll(clientMessage);	
 				System.out.println("Start game sucessfully");
 			default:
 				break;

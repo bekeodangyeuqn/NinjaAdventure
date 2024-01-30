@@ -16,9 +16,12 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
 import java.util.List;
 
-public class RoomWaiting extends JFrame {
+public class RoomWaiting extends JFrame implements Runnable{
 
     private JPanel contentPane;
     private DefaultListModel<String> playerListModel;
@@ -155,7 +158,7 @@ public class RoomWaiting extends JFrame {
     	    	if (room.getHostUsername().equals(client.getUsername())) {
 //    	    		new GamePanel(client.getUsername(), room).startGameThread();
     	    		client.startGame(room);
-    	    		new GamePanel(client.getUsername(), room).startGameThread();
+    	    		// new GamePanel(client.getUsername(), room).startGameThread();
     	    	} else {
     	    		JOptionPane.showMessageDialog(RoomWaiting.this, "Just host user can start game");
     	    	}
@@ -279,7 +282,7 @@ public class RoomWaiting extends JFrame {
 	    return htmlString.replaceAll("\\<.*?\\>", "");
 	}
 	
-	public void listenStartSignal() {
+	public synchronized void listenStartSignal() {
 	new Thread(new Runnable() {
 
 		@Override
@@ -287,12 +290,19 @@ public class RoomWaiting extends JFrame {
 			// TODO Auto-generated method stub
 			ClientMessage clientMessage;
 			while (client.socket.isConnected()) {
+				System.out.println("Waiting start...");
+				
 				try {
-					clientMessage = (ClientMessage) client.inputStream.readObject();
-//					handleServerMessageMessage);
-					if (clientMessage.getMsg_type() == ClientMessage.MSG_TYPE.START_GAME)
-						new GamePanel(client.getUsername(), room).startGameThread();
-					System.out.println(clientMessage.getMsg_type() + " completed");
+					if (client.inputStream.readObject() != null) {
+//						System.out.println(client.inputStream.readObject().toString());
+						clientMessage = (ClientMessage) client.inputStream.readObject();
+						if (clientMessage.getMsg_type() == ClientMessage.MSG_TYPE.START_GAME)
+							new GamePanel(client.getUsername(), room).startGameThread();
+						System.out.println(clientMessage.getMsg_type() + " completed");
+						break;
+					}
+					// Thread.sleep(500);
+					
 				} catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -305,6 +315,34 @@ public class RoomWaiting extends JFrame {
 		
 	}).start();
 }
+
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		while (client.socket.isConnected()) {
+			listenStartSignal();
+			// server.broadcastMessage(messageFromClient, this);
+		}
+	}
+	
+	public void closeEverything(Socket socket, ObjectOutputStream outputStream, ObjectInputStream inputStream) {
+    	// server.removeClient(this);
+    	try {
+    		if (outputStream != null) {
+    			outputStream.close();
+    		}
+    		
+    		if (inputStream != null) {
+    			inputStream.close();
+    		}
+    		
+    		if (socket != null) {
+    			socket.close();
+    		}
+    	} catch (IOException e) {
+    		e.printStackTrace();
+    	}
+    }
     
 }
 

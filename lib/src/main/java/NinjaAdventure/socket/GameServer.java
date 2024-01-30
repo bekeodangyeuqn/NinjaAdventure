@@ -76,6 +76,17 @@ public class GameServer implements Serializable{
         }
     }
 	
+	public static void broadcastMessageAll(ClientMessage clientMessage) {
+		System.out.println("Clients: " + clientHandlers.size());
+        for (ClientHandler client : clientHandlers) {
+                client.sendMessage(clientMessage);
+        }
+        
+        for (ClientHandler client : clientHandlers) {
+            client.sendMessage(clientMessage);
+    }
+    }
+	
 	public static void broadcastServerMessage(ServerMessage serverMessage, ClientHandler sender) {
         for (ClientHandler client : clientHandlers) {
                 client.sendServerMessage(serverMessage);
@@ -182,12 +193,12 @@ public class GameServer implements Serializable{
 	                    	roomRef.child(roomId).child("players").child(player1.getUserId()).setValue(true, null);
 	                    	ServerMessage message = new ServerMessage(ServerMessage.MSG_TYPE.CREATE_ROOM, ServerMessage.STATUS.SUCCESS, player1, roomName, password, numOfPlayers, "Tao phong thanh cong");
            				    clientHandler.sendServerMessage(message);
-           				    broadcastServerMessage(message, clientHandler);
+           				    // broadcastServerMessage(message, clientHandler);
            				    System.out.println("Tao phong thanh cong");
 	                    } else {
 	                    	ServerMessage message = new ServerMessage(ServerMessage.MSG_TYPE.CREATE_ROOM, ServerMessage.STATUS.FAIL, "Username khong ton tai");
 	                    	clientHandler.sendServerMessage(message);
-	                    	broadcastServerMessage(message, clientHandler);
+	                    	// broadcastServerMessage(message, clientHandler);
 	                    }
 	                }
 	            }else {
@@ -226,10 +237,31 @@ public class GameServer implements Serializable{
 	                    String passFromDB = roomSnapshot.child("pass").getValue(String.class);
 	                    if (curUserFromDB < numOfPlayersFromDB) {
 	                    	if (password.equals(passFromDB)) {
-	                    		if (roomRef.child(roomSnapshot.getKey()).child("players").child(userId).getPath() == null) {
-	                    			roomRef.child(roomSnapshot.getKey()).child("players").child(userId).setValue(true, null);
-		                    		roomRef.child(roomSnapshot.getKey()).child("curUser").setValue(curUserFromDB + 1, null);
-	                    		} 
+	                    		
+//	                    		if (roomRef.child(roomSnapshot.getKey()).child("players").child(userId).getPath() == null) {
+//	                    			roomRef.child(roomSnapshot.getKey()).child("players").child(userId).setValue(true, null);
+//		                    		roomRef.child(roomSnapshot.getKey()).child("curUser").setValue(curUserFromDB + 1, null);
+//	                    		} 
+	                    		DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Rooms/" + roomSnapshot.getKey() + "/players/" + userId);
+
+	                    		databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+	                    		    @Override
+	                    		    public void onDataChange(DataSnapshot dataSnapshot) {
+	                    		        if (dataSnapshot.exists() == false) {
+	                    		            // The child exists
+	                    		        	roomRef.child(roomSnapshot.getKey()).child("players").child(userId).setValue(true, null);
+	    		                    		roomRef.child(roomSnapshot.getKey()).child("curUser").setValue(curUserFromDB + 1, null);
+	    		                    		System.out.println("User not exist");
+	                    		        } else {
+	                    		        	System.out.println("User exist");
+	                    		        }
+	                    		    }
+
+	                    		    @Override
+	                    		    public void onCancelled(DatabaseError databaseError) {
+	                    		        // Handle possible errors.
+	                    		    }
+	                    		});
 	                    	
 	                    		 ServerMessage message = new ServerMessage(ServerMessage.MSG_TYPE.JOIN_ROOM, ServerMessage.STATUS.SUCCESS, room, "Nguoi choi " + username + " da vao phong thanh cong");
 	            				 broadcastServerMessage(message, clientHandler);

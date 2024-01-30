@@ -189,6 +189,7 @@ public class RoomListPanel extends JPanel {
 		            	        RoomWaiting roomWaiting = new RoomWaiting(room, client);
 			            		roomWaiting.setRoomListPanel(RoomListPanel.this);
 			            		roomWaiting.setVisible(true);
+			            		roomWaiting.listenStartSignal();
 		            	    }
 //	            	 }	            		            		                     
 	            }

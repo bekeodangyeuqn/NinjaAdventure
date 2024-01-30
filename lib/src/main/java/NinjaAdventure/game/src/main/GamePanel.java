@@ -35,6 +35,7 @@ import NinjaAdventure.socket.InGameClient;
 import NinjaAdventure.socket.InGameServer;
 import NinjaAdventure.socket.MultiScreenClient;
 import NinjaAdventure.socket.packet.Packet00JoinGame;
+import firebase.model.Room;
 
 public class GamePanel extends JPanel implements Runnable, Serializable {
 	private static final long serialVersionUID = 1L;
@@ -131,6 +132,7 @@ public class GamePanel extends JPanel implements Runnable, Serializable {
 	public static GamePanel game;
 	public JFrame window;
 	public WindowHandler windowHandler;
+	public Room room;
 //	public static int playersNum = 0;
 
 	public GamePanel() {
@@ -141,7 +143,7 @@ public class GamePanel extends JPanel implements Runnable, Serializable {
 		this.setFocusable(true);
 	}
 
-	public GamePanel(String username) {
+	public GamePanel(String username, Room room) {
 		this.setPreferredSize(new Dimension(screenWidth, screenHeight));
 		this.setBackground(Color.black);
 		this.setDoubleBuffered(true);
@@ -172,6 +174,7 @@ public class GamePanel extends JPanel implements Runnable, Serializable {
 		window.setIconImage(icon.getImage());
 		
 		this.username = username;
+		this.room = room;
 	}
 
 	public void setupGame() {
@@ -217,11 +220,11 @@ public class GamePanel extends JPanel implements Runnable, Serializable {
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		GraphicsDevice gd = ge.getDefaultScreenDevice();
 
-		gd.setFullScreenWindow(Main.window);
+		gd.setFullScreenWindow(this.window);
 
 		// Get full screen w and h
-		screenWidth2 = Main.window.getWidth();
-		screenHeight2 = Main.window.getHeight();
+		screenWidth2 = this.window.getWidth();
+		screenHeight2 = this.window.getHeight();
 	}
 
 	public void init() {
@@ -245,7 +248,7 @@ public class GamePanel extends JPanel implements Runnable, Serializable {
 
 	public synchronized void startGameThread() {
 		// Tạo quái 
-		if (JOptionPane.showConfirmDialog(this, "Do you want to run the server") == 0) {
+		if (room.getHostUsername() == username) {
 			socketServer = new InGameServer(this);
 			socketServer.start();
 		}
@@ -253,8 +256,8 @@ public class GamePanel extends JPanel implements Runnable, Serializable {
 		
 		gameThread = new Thread(this, "Main_" + NAME);
 		gameThread.start();
-		
-		socketClient = new InGameClient(this, "localhost");
+		// String ipAddress = JOptionPane.showInputDialog(this,"Enter host server IP Address:");      
+		socketClient = new InGameClient(this, room.getIpAdrress());
 		socketClient.start();
 		
 

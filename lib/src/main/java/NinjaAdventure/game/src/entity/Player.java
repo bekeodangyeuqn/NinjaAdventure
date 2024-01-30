@@ -734,8 +734,10 @@ public class Player extends Entity {
 		
 //		System.out.println("SetKeyPress: " + setKeyPress + " " + this.getUsername());
 //		System.out.println("OtherKeyPress: " + otherKeyPressed + " " + this.getUsername());
-		Packet02Move packet = new Packet02Move(this.getUsername(), this.worldX, this.worldY, setKeyPress);
-        packet.writeData(GamePanel.game.socketClient);
+		if (setKeyPress != -1) {
+			Packet02Move packet = new Packet02Move(this.getUsername(), this.worldX, this.worldY, setKeyPress);
+	        packet.writeData(GamePanel.game.socketClient);
+		}
 	}
 	
 	public void damageProjectile(int i) {

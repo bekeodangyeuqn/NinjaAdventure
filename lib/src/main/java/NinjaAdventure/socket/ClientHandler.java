@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import NinjaAdventure.game.src.entity.PlayerMP;
 import NinjaAdventure.game.src.main.GamePanel;
 import NinjaAdventure.game.src.main.KeyHandler;
-import NinjaAdventure.game.src.main.Main;
 
 public class ClientHandler implements Runnable{
 	
@@ -87,13 +86,13 @@ public class ClientHandler implements Runnable{
             case CREATE_ROOM:
                 // Handle create room message
             	System.out.println("Handling create room...");
-            	GameServer.handleCreateRoom(clientMessage.getUsername(), clientMessage.getRoomname(), clientMessage.getPasswordRoom(), clientMessage.getNumOfPlayers(), this);
+            	GameServer.handleCreateRoom(clientMessage.getUsername(), clientMessage.getRoomname(), clientMessage.getPasswordRoom(), clientMessage.getNumOfPlayers(), clientMessage.getRoomIp(), this);
             	System.out.println("Create room sucessfully");
                 break;
             case JOIN_ROOM:
                 // Handle join room message
             	System.out.println("Handling join room...");
-            	GameServer.handleJoinRoom(clientMessage.getUserId(), clientMessage.getRoom(), clientMessage.getPasswordRoom(), this);
+            	GameServer.handleJoinRoom(clientMessage.getUsername(), clientMessage.getUserId(), clientMessage.getRoom(), clientMessage.getPasswordRoom(), this);
             	System.out.println("Join room sucessfully");
                 break;
             case CHARMOVE:
@@ -109,6 +108,11 @@ public class ClientHandler implements Runnable{
 				
 				System.out.println("Join game sucessfully");
 				break;
+			case START_GAME:
+				System.out.println("Handling start game...");
+				server.broadcastMessage(clientMessage, this);
+				
+				System.out.println("Start game sucessfully");
 			default:
 				break;
         }

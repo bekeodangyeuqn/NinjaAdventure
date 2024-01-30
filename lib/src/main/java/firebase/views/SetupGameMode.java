@@ -12,6 +12,7 @@ import javax.swing.border.EmptyBorder;
 
 import NinjaAdventure.socket.GameServer;
 import NinjaAdventure.socket.MultiScreenClient;
+import firebase.model.Room;
 
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
@@ -23,7 +24,6 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 
 import NinjaAdventure.game.src.main.GamePanel;
-import NinjaAdventure.game.src.main.Main;
 
 public class SetupGameMode extends JFrame {
 
@@ -64,9 +64,11 @@ public class SetupGameMode extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 					setVisible(false);
+					Room room = new Room(client.getUsername(), "localhost");
 //					GamePanel game = new GamePanel();
 //					Main.initGame();
-					client.joinGame(client.getUserId(), client.getUsername());
+//					client.joinGame(client.getUserId(), client.getUsername());
+					new GamePanel(client.getUsername(), room).startGameThread();
 					
 			}
 		});
@@ -81,12 +83,12 @@ public class SetupGameMode extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 					setVisible(false);
-//					Multiplayer_Mode multiplayer_Mode = new Multiplayer_Mode(client);
-//					multiplayer_Mode.setRoomList(new RoomList(client));
-//					
-//					multiplayer_Mode.setVisible(true);
+					Multiplayer_Mode multiplayer_Mode = new Multiplayer_Mode(client);
+					multiplayer_Mode.setRoomList(new RoomList(client));
+					
+					multiplayer_Mode.setVisible(true);
 //					client.joinGame(client.getUserId(), client.getUsername());
-					new GamePanel(client.getUsername()).startGameThread();
+//					new GamePanel(client.getUsername()).startGameThread();
 			}
 		});
 		lb_multi.setForeground(Color.MAGENTA);

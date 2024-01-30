@@ -3,6 +3,8 @@ package firebase.views;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
+import NinjaAdventure.game.src.main.GamePanel;
+import NinjaAdventure.socket.ClientMessage;
 import NinjaAdventure.socket.MultiScreenClient;
 import firebase.model.Room;
 import firebase.model.User;
@@ -13,6 +15,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.IOException;
 import java.util.List;
 
 public class RoomWaiting extends JFrame {
@@ -23,7 +26,9 @@ public class RoomWaiting extends JFrame {
     private JButton startButton;
     private Room room;
     private RoomListPanel roomListPanel;
+    public MultiScreenClient client;
     public RoomWaiting(Room room, MultiScreenClient client) {
+    	this.client = client;
     /*	this.room = room;
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(100, 100, 450, 300);
@@ -141,11 +146,19 @@ public class RoomWaiting extends JFrame {
     	    @Override
     	    public void actionPerformed(ActionEvent e) {
     	        // Xử lý sự kiện khi nhấn nút "Start"
-    	        if (allPlayersReady()) {
-    	           
-    	        } else {
-    	            JOptionPane.showMessageDialog(RoomWaiting.this, "Not all players are ready.");
-    	        }
+//    	        if (allPlayersReady()) {
+//    	           
+//    	        } else {
+//    	            JOptionPane.showMessageDialog(RoomWaiting.this, "Not all players are ready.");
+//    	        }
+    	    	
+    	    	if (room.getHostUsername().equals(client.getUsername())) {
+//    	    		new GamePanel(client.getUsername(), room).startGameThread();
+    	    		client.startGame(room);
+    	    		new GamePanel(client.getUsername(), room).startGameThread();
+    	    	} else {
+    	    		JOptionPane.showMessageDialog(RoomWaiting.this, "Just host user can start game");
+    	    	}
     	    }
     	});
 
@@ -265,6 +278,33 @@ public class RoomWaiting extends JFrame {
 	private String removeHtmlTags(String htmlString) {
 	    return htmlString.replaceAll("\\<.*?\\>", "");
 	}
+	
+	public void listenStartSignal() {
+	new Thread(new Runnable() {
+
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			ClientMessage clientMessage;
+			while (client.socket.isConnected()) {
+				try {
+					clientMessage = (ClientMessage) client.inputStream.readObject();
+//					handleServerMessageMessage);
+					if (clientMessage.getMsg_type() == ClientMessage.MSG_TYPE.START_GAME)
+						new GamePanel(client.getUsername(), room).startGameThread();
+					System.out.println(clientMessage.getMsg_type() + " completed");
+				} catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		
+	}).start();
+}
     
 }
 

@@ -9,7 +9,7 @@ import firebase.model.Room;
 public class ClientMessage implements Serializable{
 	// private static final long serialVersionUID = 1L;
 
-	enum MSG_TYPE {
+	public static enum MSG_TYPE {
 		LOGIN,
 		SIGNUP,
 		FORGOT_PASSWORD,
@@ -17,7 +17,8 @@ public class ClientMessage implements Serializable{
 		JOIN_ROOM,
 		JOIN_GAME,
 		CHARMOVE,
-		PAUSE
+		PAUSE,
+		START_GAME
 	}
 	
 	private MSG_TYPE msg_type;
@@ -31,7 +32,7 @@ public class ClientMessage implements Serializable{
 	private String roomname;
 	private Room room;
 	private String userId;
-	
+	private String roomIp;
 	
 	
 	public String getUserId() {
@@ -125,6 +126,16 @@ public class ClientMessage implements Serializable{
 	public void setRoom(Room room) {
 		this.room = room;
 	}
+	
+	
+
+	public String getRoomIp() {
+		return roomIp;
+	}
+
+	public void setRoomIp(String roomIp) {
+		this.roomIp = roomIp;
+	}
 
 	// Constructor for the SIGNUP message type
     public ClientMessage(MSG_TYPE message_type, String username, String password, String fullName, String email) {
@@ -154,25 +165,33 @@ public class ClientMessage implements Serializable{
     }
     
  // Constructor for the CREATE_ROOM
-    public ClientMessage(MSG_TYPE message_type, String username, String roomname, String passwordRoom, int numOfPlayers) {
+    public ClientMessage(MSG_TYPE message_type, String username, String roomname, String passwordRoom, int numOfPlayers, String ipAddress) {
         this.msg_type = message_type;
         this.setRoomname(roomname);
         this.passwordRoom = passwordRoom;
         this.numOfPlayers = numOfPlayers;
         this.username = username;
+        this.roomIp = ipAddress;
     }
 
 // Constructor for JOIN_ROOM
-    public ClientMessage(MSG_TYPE message_type, String userId, Room room, String password) {
+    public ClientMessage(MSG_TYPE message_type, String username, String userId, Room room, String password) {
     	this.msg_type = message_type;
     	this.userId = userId;
     	this.passwordRoom = password;
     	this.room = room;
+    	this.username = username;
     }
 
 // Constructor for JOIN_GAME
     public ClientMessage(MSG_TYPE msg_type, String username) {
 		this.msg_type = msg_type;
 		this.username = username;
+	}
+    
+// Constructor for START_GAME
+    public ClientMessage(MSG_TYPE msg_type, Room room) {
+		this.msg_type = msg_type;
+		this.room = room;
 	}
 }

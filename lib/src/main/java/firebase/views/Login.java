@@ -189,6 +189,10 @@ public class Login extends JFrame {
 			clear();
 			client.setUsername(serverMessage.getUsername());
 			client.setUserId(serverMessage.getUserId());
+			Toast t = new Toast(serverMessage.getPayload(), 700, 600); 
+			  
+	        // call the method 
+	        t.showtoast(); 
 			SetupGameMode setupGameModeScreen = new SetupGameMode(client);
             setupGameModeScreen.setVisible(true);
             dispose();

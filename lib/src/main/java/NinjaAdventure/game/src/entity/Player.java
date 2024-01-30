@@ -356,7 +356,7 @@ public class Player extends Entity {
 		getGuardImage();
 		setItems();
 		setDialogue();
-		System.out.println("Set up player: " + this.getUsername() + ", HandleKey: " + this.getKeyH());
+		// System.out.println("Set up player: " + this.getUsername() + ", HandleKey: " + this.getKeyH());
 	}
 	
 	public void setDefaultPositions() {

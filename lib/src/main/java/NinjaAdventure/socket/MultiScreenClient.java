@@ -43,7 +43,7 @@ public class MultiScreenClient {
     public GamePanel gamePanel;
     
     public Socket socket;
-    private ObjectOutputStream outputStream;
+    public ObjectOutputStream outputStream;
     public ObjectInputStream inputStream;
     
     private RoomList roomList;
@@ -374,14 +374,14 @@ public class MultiScreenClient {
             ClientMessage joinMessage = new ClientMessage(ClientMessage.MSG_TYPE.START_GAME, room);
             outputStream.writeObject(joinMessage);
             
-            new Thread(() -> {
-                try {
-                	ServerMessage serverMessage = (ServerMessage) inputStream.readObject();
-                    handleServerMessage(serverMessage);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }).start();
+//            new Thread(() -> {
+//                try {
+//                	ServerMessage serverMessage = (ServerMessage) inputStream.readObject();
+//                    handleServerMessage(serverMessage);
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }).start();
             
             System.out.println("Handle join game completed");
 

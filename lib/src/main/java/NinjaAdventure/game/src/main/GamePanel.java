@@ -243,14 +243,14 @@ public class GamePanel extends JPanel implements Runnable, Serializable {
 		loginPacket.writeData(socketClient);
 
 		this.setupGame();
-		System.out.println(player.life);
 	}
 
 	public synchronized void startGameThread() {
 		// Tạo quái
-		if (room.getHostUsername() == username) {
+		if (room.getHostUsername().equals(this.username)) {
 			socketServer = new InGameServer(this);
 			socketServer.start();
+			System.out.println("This is game host server");
 		}
 
 		gameThread = new Thread(this, "Main_" + NAME);
@@ -274,9 +274,8 @@ public class GamePanel extends JPanel implements Runnable, Serializable {
 
 		// System.out.println(player.life);
 		init();
-		System.out.println(player.maxLife);
 		while (gameThread != null) {
-			System.out.println(player.maxLife);
+			// System.out.println(player.maxLife);
 			currentTime = System.nanoTime();
 
 			delta += (currentTime - lastTime) / drawInterval;

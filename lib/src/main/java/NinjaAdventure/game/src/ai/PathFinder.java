@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import NinjaAdventure.game.src.entity.Entity;
 import NinjaAdventure.game.src.main.GamePanel;
 
+
+
 public class PathFinder implements Serializable{
 	GamePanel gp;
 	Node[][] node;

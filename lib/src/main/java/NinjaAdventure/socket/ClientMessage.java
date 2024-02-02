@@ -7,7 +7,7 @@ import NinjaAdventure.socket.ServerMessage.STATUS;
 import firebase.model.Room;
 
 public class ClientMessage implements Serializable{
-	// private static final long serialVersionUID = 1L;
+	private static final String serialVersionUID = "ABC";
 
 	public static enum MSG_TYPE {
 		LOGIN,

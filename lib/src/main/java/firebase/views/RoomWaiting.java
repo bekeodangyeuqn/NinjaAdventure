@@ -238,6 +238,8 @@ public class RoomWaiting extends JFrame implements Runnable{
                 }
             }
         });
+        
+        listenStartSignal();
     }
 
     // Phương thức kiểm tra xem tất cả người chơi đã sẵn sàng hay chưa
@@ -282,7 +284,7 @@ public class RoomWaiting extends JFrame implements Runnable{
 	    return htmlString.replaceAll("\\<.*?\\>", "");
 	}
 	
-	public synchronized void listenStartSignal() {
+	public void listenStartSignal() {
 	new Thread(new Runnable() {
 
 		@Override
@@ -293,9 +295,11 @@ public class RoomWaiting extends JFrame implements Runnable{
 				System.out.println("Waiting start...");
 				
 				try {
-					if (client.inputStream.readObject() != null) {
+					Object message = client.inputStream.readObject();
+					System.out.println(message.toString());
+					if ((message instanceof ClientMessage)) {
 //						System.out.println(client.inputStream.readObject().toString());
-						clientMessage = (ClientMessage) client.inputStream.readObject();
+						clientMessage = (ClientMessage) message;
 						if (clientMessage.getMsg_type() == ClientMessage.MSG_TYPE.START_GAME)
 							new GamePanel(client.getUsername(), room).startGameThread();
 						System.out.println(clientMessage.getMsg_type() + " completed");

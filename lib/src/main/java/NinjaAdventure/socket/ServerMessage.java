@@ -6,7 +6,7 @@ import firebase.model.Room;
 import firebase.model.User;
 
 public class ServerMessage implements Serializable{
-	// private static final long serialVersionUID = 1L;
+	private static final String serialVersionUID = "ABC";
 
 	public enum MSG_TYPE {
 		LOGIN,

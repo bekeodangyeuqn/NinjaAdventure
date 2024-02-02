@@ -82,9 +82,9 @@ public class GameServer implements Serializable{
                 client.sendMessage(clientMessage);
         }
         
-        for (ClientHandler client : clientHandlers) {
-            client.sendMessage(clientMessage);
-    }
+//        for (ClientHandler client : clientHandlers) {
+//            client.sendMessage(clientMessage);
+//    }
     }
 	
 	public static void broadcastServerMessage(ServerMessage serverMessage, ClientHandler sender) {
@@ -264,7 +264,7 @@ public class GameServer implements Serializable{
 	                    		});
 	                    	
 	                    		 ServerMessage message = new ServerMessage(ServerMessage.MSG_TYPE.JOIN_ROOM, ServerMessage.STATUS.SUCCESS, room, "Nguoi choi " + username + " da vao phong thanh cong");
-	            				 broadcastServerMessage(message, clientHandler);
+	                    		 clientHandler.sendServerMessage(message);
 	            				 System.out.println("Vao phong thanh cong");
 	                    	} else {
 	                    		ServerMessage message = new ServerMessage(ServerMessage.MSG_TYPE.JOIN_ROOM, ServerMessage.STATUS.FAIL, "Vao phong that bai. Mat khau bi sai");
@@ -275,7 +275,7 @@ public class GameServer implements Serializable{
 	                    	clientHandler.sendServerMessage(message);
 	                    }
 	                }
-	            }else {
+	            } else {
 	            	ServerMessage message = new ServerMessage(ServerMessage.MSG_TYPE.JOIN_ROOM, ServerMessage.STATUS.FAIL, "Khong ton tai phong choi nay tren he thong");
 	            	clientHandler.sendServerMessage(message);
 	            }

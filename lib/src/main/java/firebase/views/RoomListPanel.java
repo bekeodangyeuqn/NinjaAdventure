@@ -184,12 +184,10 @@ public class RoomListPanel extends JPanel {
 		            	        char[] passwordChars = passwordField.getPassword();
 		            	        String password = new String(passwordChars);
 		            	        client.joinRoom(client.getUsername(), client.getUserId(), room, password);
-		            	        rooms.remove(room);
-		            	        updateUI1(rooms, client);
-		            	        RoomWaiting roomWaiting = new RoomWaiting(room, client);
-			            		roomWaiting.setRoomListPanel(RoomListPanel.this);
-			            		roomWaiting.setVisible(true);
-			            		roomWaiting.listenStartSignal();
+//		            	        RoomWaiting roomWaiting = new RoomWaiting(room, client);
+//			            		roomWaiting.setRoomListPanel(RoomListPanel.this);
+//			            		roomWaiting.setVisible(true);
+// 			            		roomWaiting.listenStartSignal();
 		            	    }
 //	            	 }	            		            		                     
 	            }
@@ -247,10 +245,13 @@ public class RoomListPanel extends JPanel {
 				player.setUsername(client.getUsername());
 				player.setUserId(client.getUserId());
 				updatedRoom.addAPlayer(player);
-				RoomWaiting roomWaitingScreen = new RoomWaiting(updatedRoom, client);
-				roomWaitingScreen.setVisible(true);
+				Toast t = new Toast(serverMessage.getPayload(), 700, 600); 
+		        t.showtoast(); 
 		    	rooms.add(updatedRoom);
 		    	updateUI1(rooms, client);
+		    	RoomWaiting roomWaitingScreen = new RoomWaiting(updatedRoom, client);
+				roomWaitingScreen.setRoomListPanel(RoomListPanel.this);
+				roomWaitingScreen.setVisible(true);
 			} else {
 				JOptionPane.showMessageDialog(null, "<html><b style=\"color:red\">" + serverMessage.getPayload()  + "</b>  </html>", "Message", JOptionPane.ERROR_MESSAGE);
 	            System.out.println("Vao phong that bai");

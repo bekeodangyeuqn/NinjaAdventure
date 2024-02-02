@@ -59,10 +59,12 @@ public class RoomListPanel extends JPanel {
 		                        int numOfPLayersFromDB = roomSnapshot.child("numOfPlayers").getValue(Integer.class);
 		                        int curUserFromDB =  roomSnapshot.child("curUser").getValue(Integer.class);
 		                        String hostUserFromDB = roomSnapshot.child("hostUsername").getValue(String.class);
+		                        String ipAddressFromDB = roomSnapshot.child("ipAdrress").getValue(String.class);
 		                        Room room = new Room(roomnameFromDB, numOfPLayersFromDB);
 		                		room.setPass(passwordFromDB);
 		                		room.setCurUser(curUserFromDB);
 		                		room.setHostUsername(hostUserFromDB);
+		                		room.setIpAdrress(ipAddressFromDB);
 		                		refUser.addListenerForSingleValueEvent(new ValueEventListener() {
 
 									@Override
@@ -233,7 +235,7 @@ public class RoomListPanel extends JPanel {
 //	    	room.setCurUser(x+1);
 //	    	updateUI1(rooms, client);
 	    	if (serverMessage.getStatus() == ServerMessage.STATUS.SUCCESS ) {
-				System.out.println("Server message join room: " + serverMessage.getRoom().getName());
+				System.out.println("Server message join room　ip: " + serverMessage.getRoom().getIpAdrress());
 				for (User player : serverMessage.getRoom().getPlayers()) {
 					System.out.println("Player in room: " + player);
 				}
